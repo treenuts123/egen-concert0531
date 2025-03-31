@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>셋리스트</title>
+    <style>
+        body {
+              font-family: '맑은 고딕', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .setlist-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .band {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            padding: 15px;
+            position: relative;
+        }
+        .band h2 {
+            margin-bottom: 10px;
+        }
+        .song {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .song:last-child {
+            border-bottom: none;
+        }
+        .icons {
+            display: flex;
+            gap: 40px;
+        }
+        .icons img {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .icon-labels {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85em;
+            color: #666;
+            justify-content: flex-end;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+        .home-btn {
+            display: inline-block;
+            padding: 8px 15px;
+            margin-bottom: 20px;
+            background-color: #5c85d6;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease;
+        }
+        .home-btn:hover { background-color: #486fb8; }
+        .coming-soon {
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="home-btn">처음으로 돌아가기</a>
+<div class="setlist-container">
+    <h1>셋리스트</h1>
+
+     <div class="band">
+        <h2>TreeNuts (트리넛츠)</h2>
+        <div class="icon-labels">
+            <span>들어보기</span>
+            <span>떼창포인트</span>
+        </div>
+        <div class="song">잔나비 - See your eyes
+            <div class="icons">
+                <img src="images/music logo2.png" alt="들어보기">
+                <img src="images/music logo2.png" alt="떼창포인트">
+            </div>
+        </div>
+        <div class="song">잔나비 - 봉춤을 추네
+            <div class="icons">
+                <img src="images/music logo2.png" alt="들어보기">
+                <img src="images/music logo2.png" alt="떼창포인트" class="play-audio" data-audio="https://docs.google.com/uc?export=download&id=1n4MkbzrBpKcelbIkqNGgiDFPoSTs6po2"> 
+            </div>
+        </div>
+        <div class="song">LUCY - 아지랑이
+            <div class="icons">
+                <img src="images/music logo2.png" alt="들어보기">
+                <img src="images/music logo2.png" alt="떼창포인트">
+            </div>
+        </div>
+        <div class="song">장기하와 얼굴들 - 풍문으로 들었소
+            <div class="icons">
+                <img src="images/music logo2.png" alt="들어보기">
+                <img src="images/music logo2.png" alt="떼창포인트">
+            </div>
+        </div>
+        <div class="song">브로큰발렌타인 - Pokerface
+            <div class="icons">
+                <img src="images/music logo2.png" alt="들어보기">
+                <img src="images/music logo2.png" alt="떼창포인트">
+            </div>
+        </div>
+    </div>
+
+    <div class="band coming-soon">
+        <h2>예음회1</h2>
+        <p>Coming soon</p>
+    </div>
+
+    <div class="band coming-soon">
+        <h2>예음회2</h2>
+        <p>Coming soon</p>
+    </div>
+
+    <div class="band coming-soon">
+        <h2>외국인밴드</h2>
+        <p>Coming soon</p>
+    </div>
+
+    <div class="band coming-soon">
+        <h2>Coming soon</h2>
+        <p>Coming soon</p>
+    </div>
+
+</div>
+
+<audio id="audioPlayer" style="display:none;"></audio>
+<script>
+    document.querySelectorAll('.play-audio').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = this.getAttribute('data-audio');
+            audioPlayer.play();
+        });
+    });
+</script>
+
+</body>
+</html>
