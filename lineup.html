@@ -25,11 +25,27 @@
             margin-bottom: 20px;
             padding: 10px;
             display: flex;
-            align-items: flex-end;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
             overflow: hidden;
             height: 400px;
+            text-align: center;
         }
+        .band-content {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .band-content p {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
         .band img.logo {
             width: 100%;
             height: 100%;
@@ -45,7 +61,8 @@
             align-items: center;
             justify-content: center;
             z-index: 1;
-            margin-bottom: 80px;
+            gap: 10px;
+            margin: 0px;
         }
         .sns-icons img {
             width: 30px;
@@ -73,36 +90,47 @@
     <h1>공연 라인업</h1>
 
     <div class="band">
-        <p>TreeNuts</p>
         <img src="images/logo_treenuts.jpg" alt="트리넛츠 로고" class="logo">
-        <div class="sns-icons">
-            <a href="https://www.youtube.com/@TreeNuts.Official" target="_blank"><img src="images/youtube_icon.png" alt="유튜브"></a>
-            <a href="https://www.instagram.com/treenuts_official" target="_blank"><img src="images/instagram_icon.png" alt="인스타그램"></a>
+        <div class="band-content">
+            <p>TreeNuts</p>
+            <div class="sns-icons">
+                <a href="https://www.youtube.com/@TreeNuts.Official" target="_blank"><img src="images/youtube_icon.png" alt="유튜브"></a>
+                <a href="https://www.instagram.com/treenuts_official" target="_blank"><img src="images/instagram_icon.png" alt="인스타그램"></a>
+            </div>
         </div>
     </div>
 
     <div class="band">
-        <p>WE THE LAND</p>
+       
         <img src="images/logo_wetheland.jpg" alt="위더랜드 로고" class="logo">
-        <div class="sns-icons">
-            <a href="https://www.youtube.com/@wetheland_officail" target="_blank"><img src="images/youtube_icon.png" alt="유튜브"></a>
+        <div class="band-content">
+            <p>WE THE LAND</p>
+            <div class="sns-icons">
+                <a href="https://www.youtube.com/@wetheland_officail" target="_blank"><img src="images/youtube_icon.png" alt="유튜브"></a>
+            </div>
         </div>
     </div>
 
     <div class="band">
-        <p>WASHED MARS</p>
+      
         <img src="images/logo_washedmars" alt="워시드마스 로고" class="logo">
-        <div class="sns-icons">
-            <a href="https://www.instagram.com/band_washed_mars" target="_blank"><img src="images/instagram_icon.png" alt="인스타그램"></a>
+          <div class="band-content">
+            <p>WASHED MARS</p>
+            <div class="sns-icons">
+                <a href="https://www.instagram.com/band_washed_mars" target="_blank"><img src="images/instagram_icon.png" alt="인스타그램"></a>
+            </div>        
         </div>
     </div>
 
     <div class="band">
-        <P>VIGUKI BAND</P>
+        
         <img src="logo_viguki.jpg" alt="외국인밴드 로고" class="logo">
-        <div class="sns-icons">
-            <a href="https://www.instagram.com/viguki_band" target="_blank"><img src="images/instagram_icon.png" alt="인스타그램"></a>
-        </div>
+            <div class="band-content">
+                <P>VIGUKI BAND</P>
+                <div class="sns-icons">
+                    <a href="https://www.instagram.com/viguki_band" target="_blank"><img src="images/instagram_icon.png" alt="인스타그램"></a>
+                </div>
+            </div>
     </div>
 
 </div>
