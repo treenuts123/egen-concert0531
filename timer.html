@@ -9,7 +9,7 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background: url('images/acdc-bg.gif') center center / cover no-repeat;
+      background-color: #000;
       font-family: '맑은 고딕', sans-serif;
       display: flex;
       justify-content: center;
@@ -66,6 +66,15 @@
     @keyframes fly-in-6 {
       from { transform: translate(-50%, 300px); opacity: 0; }
       to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .blinking {
+      animation: blink 0.5s linear infinite;
     }
   </style>
 </head>
@@ -125,14 +134,32 @@
 
   document.body.addEventListener("click", () => {
     clickCount++;
+
     if (clickCount <= characters.length) {
       const char = document.createElement("img");
       char.src = characters[clickCount - 1].src;
       char.className = `character ${characters[clickCount - 1].anim}`;
       char.style = characters[clickCount - 1].position;
       characterContainer.appendChild(char);
-    } else {
-      location.reload();
+    } else if (clickCount === 7) {
+      const allChars = characterContainer.querySelectorAll("img");
+      allChars.forEach((char, index) => {
+        setTimeout(() => {
+          char.classList.add("blinking");
+        }, index * 200);
+      });
+    } else if (clickCount === 8) {
+      characterContainer.innerHTML = "";
+    } else if (clickCount === 9) {
+      characters.forEach((charData) => {
+        const char = document.createElement("img");
+        char.src = charData.src;
+        char.className = `character ${charData.anim}`;
+        char.style = charData.position;
+        characterContainer.appendChild(char);
+      });
+    } else if (clickCount === 10) {
+      window.location.href = "index.html";
     }
   });
 </script>
