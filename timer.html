@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Countdown</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: url('images/acdc-bg.gif') center center / cover no-repeat;
+      font-family: '맑은 고딕', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      cursor: pointer;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      color: white;
+      text-shadow: 2px 2px 4px #000;
+    }
+    .countdown-text {
+      font-size: 1.5em;
+      color: white;
+      text-shadow: 1px 1px 2px #000;
+    }
+    .character {
+      position: fixed;
+      width: 150px;
+      height: auto;
+      z-index: 9999;
+      opacity: 0;
+    }
+    .fly-in-12 { animation: fly-in-12 1s ease-out forwards; }
+    .fly-in-2 { animation: fly-in-2 1s ease-out forwards; }
+    .fly-in-4 { animation: fly-in-4 1s ease-out forwards; }
+    .fly-in-10 { animation: fly-in-10 1s ease-out forwards; }
+    .fly-in-8 { animation: fly-in-8 1s ease-out forwards; }
+    .fly-in-6 { animation: fly-in-6 1s ease-out forwards; }
+
+    @keyframes fly-in-12 {
+      from { transform: translate(-50%, -300px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+    @keyframes fly-in-2 {
+      from { transform: translate(200px, -200px); opacity: 0; }
+      to { transform: translate(0, 0); opacity: 1; }
+    }
+    @keyframes fly-in-4 {
+      from { transform: translate(200px, 200px); opacity: 0; }
+      to { transform: translate(0, 0); opacity: 1; }
+    }
+    @keyframes fly-in-10 {
+      from { transform: translate(-200px, -200px); opacity: 0; }
+      to { transform: translate(0, 0); opacity: 1; }
+    }
+    @keyframes fly-in-8 {
+      from { transform: translate(-200px, 200px); opacity: 0; }
+      to { transform: translate(0, 0); opacity: 1; }
+    }
+    @keyframes fly-in-6 {
+      from { transform: translate(-50%, 300px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Ticket Sales Open</h1>
+<span class="countdown-text">Coming Soon</span>
+<span class="countdown-text" id="countdown"></span>
+
+<div id="character-container"></div>
+<audio id="bgm" autoplay loop>
+  <source src="audio/back_in_black.mp3" type="audio/mp3">
+</audio>
+
+<script>
+  const countdown = document.getElementById("countdown");
+  const characterContainer = document.getElementById("character-container");
+  const openTime = new Date("2025-05-01T00:00:00+09:00").getTime();
+
+  let clickCount = 0;
+  const characters = [
+    { src: "images/drum.gif", position: "top: 10%; left: 50%; transform: translateX(-50%);", anim: "fly-in-12" },
+    { src: "images/guitar1.gif", position: "top: 25%; right: 10%;", anim: "fly-in-2" },
+    { src: "images/guitar2.gif", position: "bottom: 25%; right: 10%;", anim: "fly-in-4" },
+    { src: "images/bass.gif", position: "top: 25%; left: 10%;", anim: "fly-in-10" },
+    { src: "images/keyboard.gif", position: "bottom: 25%; left: 10%;", anim: "fly-in-8" },
+    { src: "images/vocal.gif", position: "bottom: 10%; left: 50%; transform: translateX(-50%);", anim: "fly-in-6" }
+  ];
+
+  const updateTimer = () => {
+    const now = new Date().getTime();
+    const diff = openTime - now;
+
+    if (diff <= 0) {
+      countdown.innerText = "Now Open!";
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    if (days > 1) {
+      countdown.innerText = `D-${days}`;
+    } else if (diff > 60 * 60 * 1000) {
+      countdown.innerText = `${hours + days * 24}시간 남음`;
+    } else if (diff > 60 * 1000) {
+      countdown.innerText = `${minutes + hours * 60}분 남음`;
+    } else {
+      countdown.innerText = `${seconds}초 남음`;
+    }
+  };
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+
+  document.body.addEventListener("click", () => {
+    clickCount++;
+    if (clickCount <= characters.length) {
+      const char = document.createElement("img");
+      char.src = characters[clickCount - 1].src;
+      char.className = `character ${characters[clickCount - 1].anim}`;
+      char.style = characters[clickCount - 1].position;
+      characterContainer.appendChild(char);
+    } else {
+      location.reload();
+    }
+  });
+</script>
+
+</body>
+</html>
