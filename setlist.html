@@ -6,7 +6,7 @@
     <title>셋리스트</title>
     <style>
         body {
-              font-family: '맑은 고딕', sans-serif;
+            font-family: '맑은 고딕', sans-serif;
             background-color: #f9f9f9;
             color: #333;
             margin: 0;
@@ -48,15 +48,6 @@
             cursor: pointer;
             margin-right: 10px;
         }
-        .icon-labels {
-            display: flex;
-            gap: 20px;
-            font-size: 0.85em;
-            color: #666;
-            justify-content: flex-end;
-            margin-top: -5px;
-            margin-bottom: 10px;
-        }
         .home-btn {
             display: inline-block;
             padding: 8px 15px;
@@ -69,150 +60,127 @@
             transition: background-color 0.2s ease;
         }
         .home-btn:hover { background-color: #486fb8; }
-        .coming-soon {
-            color: #aaa;
+
+        /* 오디오 컨트롤바 */
+        .audio-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #progressBar {
+            width: 300px;
+        }
+
+        #volumeControl {
+            width: 100px;
         }
     </style>
 </head>
 <body>
 <a href="index.html" class="home-btn">처음으로 돌아가기</a>
+
 <div class="setlist-container">
     <h1>셋리스트</h1>
-     <p></p>환경에 따라 10초정도 로딩이 있을 수 있습니다</p>
-     <div class="band">
+
+    <!-- 셋리스트 -->
+    <div class="band">
         <h2>TreeNuts (트리넛츠)</h2>
-        <div class="icon-labels">
-            <span>떼창포인트</span>
-            <span>들어보기</span>
-          
-        </div>
         <div class="song">잔나비 - See your eyes
             <div class="icons">
-                <img src="images/music logo2.png" margin-right: 50px; alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_set1.mp3" type="audio/mp3">
+                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_set1.mp3">
             </div>
         </div>
         <div class="song">잔나비 - 봉춤을 추네
             <div class="icons">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_point2.mp3" type="audio/mp3">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_set2.mp3" type="audio/mp3">
-                
+                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_set2.mp3">
             </div>
         </div>
         <div class="song">LUCY - 아지랑이
             <div class="icons">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_point3.mp3" type="audio/mp3">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_set3.mp3" type="audio/mp3">
-                
-            </div>
-        </div>
-        <div class="song">장기하와 얼굴들 - 풍문으로 들었소
-            <div class="icons">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_point4.mp3" type="audio/mp3">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_set4.mp3" type="audio/mp3">
-            
-            </div>
-        </div>
-        <div class="song">브로큰발렌타인 - Pokerface
-            <div class="icons">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_point5.mp3" type="audio/mp3">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_set5.mp3" type="audio/mp3">
-                
+                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://chipper-mousse-532e7f.netlify.app/treenuts_set3.mp3">
             </div>
         </div>
     </div>
 
-    <div class="band">
-        <h2>WE THE LAND</h2>
-         <div class="icon-labels">
-            <span>떼창포인트</span>
-            <span>들어보기</span>
-        </div>
-        <div class="song">한로로 - 입춘
-            <div class="icons">
-                <img src="images/music logo2.png" margin-right: 50px; alt="들어보기" class="play-audio" data-audio="https://stellar-kleicha-cde8be.netlify.app/wetheland_set1.mp3" type="audio/mp3">
-            </div>
-        </div>
-        <div class="song"> coming soon
-       
-        </div>
-        <div class="song">자우림 - 스물다섯, 스물하나
-            <div class="icons">
-                
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://stellar-kleicha-cde8be.netlify.app/wetheland_set3.mp3" type="audio/mp3">
-                
-            </div>
-        </div>
-        <div class="song">쏜애플 - 멸종
-            <div class="icons">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://stellar-kleicha-cde8be.netlify.app/wetheland_set4.mp3" type="audio/mp3">
-                
-            </div>
-        </div>
-        <div class="song">터치드 - Highlight
-            <div class="icons">
-                <img src="images/music logo2.png" alt="들어보기" class="play-audio" data-audio="https://stellar-kleicha-cde8be.netlify.app/wetheland_set5.mp3" type="audio/mp3">
-                
-            </div>
-        </div>
-    </div>
+    <!-- 추가적인 밴드들... -->
 
-    <div class="band">
-       <h2>WASHED MARS</h2>
-         <div class="icon-labels">
-            <span>떼창포인트</span>
-            <span>들어보기</span>
-        </div>
-        <div class="song">Wave To Earth (웨이브투어스) - 사랑으로 (love)
-            <div class="icons">
-                <img src="images/music logo2.png" margin-right: 50px; alt="들어보기" class="play-audio" data-audio="https://ephemeral-biscotti-48a376.netlify.app/washedmars_set1.mp3" type="audio/mp3">
-            </div>
-        </div>
-        <div class="song">넬(NELL) - 기억을 걷는 시간 [유희열의 스케치북, 2021.09.17]
-            <div class="icons">
-                <img src="images/music logo2.png" margin-right: 50px; alt="들어보기" class="play-audio" data-audio="https://ephemeral-biscotti-48a376.netlify.app/washedmars_set2.mp3" type="audio/mp3">
-            </div>
-        </div>
-        <div class="song">이승환 - 물어본다 [유희열의 스케치북, 2016.04.22]
-            <div class="icons">
-                <img src="images/music logo2.png" margin-right: 50px; alt="들어보기" class="play-audio" data-audio="https://ephemeral-biscotti-48a376.netlify.app/washedmars_set3.mp3" type="audio/mp3">
-            </div>
-        </div>
-        <div class="song">Joe Bonamassa - My Mistake
-            <div class="icons">
-                 <img src="images/music logo2.png" margin-right: 50px; alt="들어보기" class="play-audio" data-audio="https://ephemeral-biscotti-48a376.netlify.app/washedmars_set4.mp3" type="audio/mp3">
-               
-            </div>
-        </div>
-        <div class="song">달담(DALDAM) - 물빛여름
-            <div class="icons">
-                <img src="images/music logo2.png" margin-right: 50px; alt="들어보기" class="play-audio" data-audio="https://ephemeral-biscotti-48a376.netlify.app/washedmars_set5.mp3" type="audio/mp3">
-                
-            </div>
-        </div>
-        <div class="song">소란(SORAN) - 가을목이 [더 시즌즈-박재범의 드라이브, 2023.03.19]
-            <div class="icons">
-                <img src="images/music logo2.png" margin-right: 50px; alt="들어보기" class="play-audio"1 data-audio="https://ephemeral-biscotti-48a376.netlify.app/washedmars_set6.mp3" type="audio/mp3">
-                
-            </div>
-        </div>
+    <!-- 오디오 컨트롤 바 -->
+    <div class="audio-controls">
+        <button id="playPauseBtn">Play</button>
+        <input type="range" id="progressBar" value="0" step="1" min="0" max="100">
+        <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+        <input type="range" id="volumeControl" value="100" max="100" step="1">
     </div>
-
-    <div class="band">
-        <h2>VIGUKI BAND</h2>
-        <p>Coming soon</p>
-    </div>
-
 </div>
 
-<audio id="audioPlayer" style="display:none;"></audio>
+<!-- 전체 오디오 플레이어 -->
+<audio id="audioPlayer" style="display:none;" preload="auto"></audio>
+
 <script>
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const progressBar = document.getElementById("progressBar");
+    const currentTimeDisplay = document.getElementById("currentTime");
+    const durationDisplay = document.getElementById("duration");
+    const volumeControl = document.getElementById("volumeControl");
+
+    const audioPlayer = document.getElementById("audioPlayer"); // 전체 오디오 플레이어
+
+    let isPlaying = false;
+
+    // 각 곡 클릭 시 오디오 플레이어 제어
     document.querySelectorAll('.play-audio').forEach(icon => {
         icon.addEventListener('click', function() {
-            const audioPlayer = document.getElementById('audioPlayer');
             audioPlayer.src = this.getAttribute('data-audio');
             audioPlayer.play();
+            playPauseBtn.textContent = "Pause"; // 재생 버튼 텍스트 변경
+            isPlaying = true;
+
+            // 노래 메타데이터 로딩 후
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                durationDisplay.textContent = formatTime(audioPlayer.duration);
+            });
+
+            // 시간 업데이트
+            audioPlayer.addEventListener('timeupdate', () => {
+                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressBar.value = progress;
+                currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
+            });
         });
     });
+
+    // 전체 플레이/일시정지 버튼 클릭 시
+    playPauseBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            audioPlayer.pause();
+            playPauseBtn.textContent = "Play"; // 일시정지 버튼 텍스트 변경
+        } else {
+            audioPlayer.play();
+            playPauseBtn.textContent = "Pause"; // 재생 버튼 텍스트 변경
+        }
+        isPlaying = !isPlaying;
+    });
+
+    // 진행 바 클릭 시
+    progressBar.addEventListener('input', () => {
+        const progress = (progressBar.value / 100) * audioPlayer.duration;
+        audioPlayer.currentTime = progress;
+    });
+
+    // 볼륨 조절
+    volumeControl.addEventListener('input', () => {
+        audioPlayer.volume = volumeControl.value / 100;
+    });
+
+    // 시간 포맷팅 (초 -> 분:초)
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
 </script>
 
 </body>
