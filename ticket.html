@@ -16,7 +16,7 @@
     h1 {
       font-size: 2.5em;
     }
-    .form-container {
+    .form-container, .payment-container {
       background: white;
       padding: 20px;
       border-radius: 10px;
@@ -28,20 +28,18 @@
       display: block;
       margin: 10px 0 5px;
     }
-    input, select {
+    input, select, button {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-bottom: 15px;
       border-radius: 5px;
       border: 1px solid #ccc;
+      font-size: 1em;
     }
     button {
       background-color: #5c85d6;
       color: white;
-      padding: 10px 20px;
       border: none;
-      border-radius: 5px;
-      font-size: 1em;
       cursor: pointer;
     }
     button:hover {
@@ -55,39 +53,48 @@
   </style>
 </head>
 <body>
- <a href="index.html" class="home-btn">처음으로 돌아가기</a>
 
 <h1>22.3도 티켓 예매</h1>
 
 <div class="form-container" id="form-container">
   <form id="ticketForm">
     <label for="name">이름 (입금자명)</label>
-    <input type="text" id="name" name="name" required>
+    <input type="text" id="name" required>
 
     <label for="phone">전화번호</label>
-    <input type="text" id="phone" name="phone" required>
+    <input type="text" id="phone" required>
 
     <label for="count">인원수</label>
-    <input type="number" id="count" name="count" min="1" max="5" required>
+    <input type="number" id="count" min="1" max="5" required>
 
     <label for="drink">웰컴드링크 선택</label>
-    <select id="drink" name="drink" required>
+    <select id="drink" required>
       <option value="">선택하세요</option>
       <option value="물">물</option>
       <option value="콜라">콜라</option>
       <option value="포카리">포카리</option>
       <option value="맥주">맥주</option>
-      <option value="없음">없음</option>
     </select>
 
     <button type="submit">예매하기</button>
   </form>
 </div>
 
+<div class="payment-container" id="payment-container" style="display:none;">
+  <h2>입금 안내</h2>
+  <p><strong>은행명:</strong> 하나은행</p>
+  <p><strong>계좌번호:</strong> 123-4567-8901-23</p>
+  <p><strong>예금주:</strong> 홍길동</p>
+  <p id="payment-amount"></p>
+  <button id="confirm-payment">입금 완료했습니다</button>
+</div>
+
 <div id="message"></div>
 
 <script>
 const webAppUrl = "https://script.google.com/macros/s/AKfycbwLeXMjiWXINmYMe6CAGZEYJFX5KR4wS3ZPxf4aweJ6WXTVsWunCBAqdJ8P9BdyotfQVw/exec";
+
+let tempBookingData = null;
 
 document.getElementById('ticketForm').addEventListener('submit', function(event) {
   event.preventDefault();
@@ -102,29 +109,41 @@ document.getElementById('ticketForm').addEventListener('submit', function(event)
     return;
   }
 
+  tempBookingData = { name, phone, count, drink };
+
+  document.getElementById('payment-amount').innerHTML = `<strong>입금 금액:</strong> ${(count * 12000).toLocaleString()}원`;
+  document.getElementById('form-container').style.display = "none";
+  document.getElementById('payment-container').style.display = "block";
+});
+
+document.getElementById('confirm-payment').addEventListener('click', function() {
+  if (!tempBookingData) {
+    alert('오류가 발생했습니다.');
+    return;
+  }
+
   fetch(webAppUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       type: 'new',
-      name: name,
-      phone: phone,
-      count: count,
-      drink: drink
+      name: tempBookingData.name,
+      phone: tempBookingData.phone,
+      count: tempBookingData.count,
+      drink: tempBookingData.drink
     })
   })
   .then(response => response.text())
   .then(result => {
     if (result === 'full') {
-      document.getElementById('form-container').innerHTML = '<h2>예매 마감되었습니다</h2>';
+      document.getElementById('payment-container').innerHTML = '<h2>예매 마감되었습니다</h2>';
     } else {
-      const amount = 12000 * count;
+      document.getElementById('payment-container').style.display = "none";
       document.getElementById('message').innerHTML = `
-        예매가 완료되었습니다.<br>
-        당신의 예매번호: <strong>${result}</strong><br>
-        입금 금액: <strong>${amount.toLocaleString()}원</strong>
+        🎫 예매 완료!<br><br>
+        당신의 예매번호는 <strong>${result}</strong> 입니다.<br><br>
+        입금 완료 후, 예매확인 페이지에서 확인해 주세요.
       `;
-      document.getElementById('ticketForm').reset();
     }
   })
   .catch(error => {
