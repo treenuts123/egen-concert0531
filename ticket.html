@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>22.3도 티켓 예매</title>
   <style>
     body {
@@ -13,8 +13,11 @@
       padding: 20px;
       text-align: center;
     }
-    .hidden { display: none; }
-    .form-container, .info-container {
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    .form-container {
       background: white;
       padding: 20px;
       border-radius: 10px;
@@ -22,10 +25,14 @@
       margin: 20px auto;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
     input, select, button {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      margin-bottom: 15px;
       border-radius: 5px;
       border: 1px solid #ccc;
       font-size: 1em;
@@ -39,44 +46,66 @@
     button:hover {
       background-color: #486fb8;
     }
+    #payment-info, #ticket-info {
+      margin-top: 30px;
+    }
+    #message {
+      font-size: 1.2em;
+      color: green;
+    }
   </style>
 </head>
 <body>
 
 <h1>22.3도 티켓 예매</h1>
-<div id="seat-info">남은 좌석: 확인 중...</div>
+<div id="seats-info">남은 좌석: <span id="seats-left">50</span>석</div>
 
-<div class="form-container" id="input-form">
-  <input type="text" id="name" placeholder="이름 (입금자명)" required />
-  <input type="text" id="phone" placeholder="전화번호" required />
-  <input type="number" id="count" min="1" max="5" placeholder="인원수" required />
-  <select id="drink" required>
-    <option value="">웰컴드링크 선택</option>
-    <option value="물">물</option>
-    <option value="콜라">콜라</option>
-    <option value="포카리">포카리</option>
-    <option value="맥주">맥주</option>
-  </select>
-  <button onclick="showAccount()">예매하기</button>
+<div class="form-container" id="form-container">
+  <form id="ticketForm">
+    <label for="name">이름 (입금자명)</label>
+    <input type="text" id="name" required />
+
+    <label for="phone">전화번호</label>
+    <input type="text" id="phone" required />
+
+    <label for="count">인원수</label>
+    <input type="number" id="count" min="1" max="5" required />
+
+    <label for="drink">웰컴드링크 선택</label>
+    <select id="drink" required>
+      <option value="">선택하세요</option>
+      <option value="물">물</option>
+      <option value="콜라">콜라</option>
+      <option value="포카리">포카리</option>
+      <option value="맥주">맥주</option>
+    </select>
+
+    <button type="submit">예매 계좌 정보 보기</button>
+  </form>
 </div>
 
-<div class="info-container hidden" id="account-info">
+<div id="payment-info" style="display:none;">
   <h2>입금 안내</h2>
-  <p>🏦 하나은행 123-4567-8901-23 (홍길동)</p>
-  <p id="amount-info"></p>
-  <button onclick="submitBooking()">입금 완료했습니다</button>
+  <p><strong>은행명:</strong> 하나은행</p>
+  <p><strong>계좌번호:</strong> 123-4567-8901-23</p>
+  <p><strong>예금주:</strong> 홍길동</p>
+  <p id="payment-amount"></p>
+  <button id="confirm-payment">입금 완료했습니다</button>
 </div>
 
-<div class="info-container hidden" id="result-info"></div>
-
-<iframe name="hidden_iframe" style="display:none;"></iframe>
+<div id="ticket-info" style="display:none;">
+  <h3>예매번호와 예매자 정보</h3>
+  <p id="booking-info"></p>
+  <button onclick="window.location.reload()">처음으로 돌아가기</button>
+</div>
 
 <script>
 const webAppUrl = "https://script.google.com/macros/s/AKfycbwisdiasPRwbHlSF5JnuJxRiuDrkNe5uemlLlYYxGLo4BXKEYhGEx7wVPN-WFIEJZ-JnA/exec";
+let tempBookingData = null;
 
-let tempData = null;
-
-function showAccount() {
+document.getElementById('ticketForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const count = parseInt(document.getElementById('count').value);
@@ -87,51 +116,56 @@ function showAccount() {
     return;
   }
 
-  tempData = { name, phone, count, drink };
+  tempBookingData = { name, phone, count, drink };
 
-  document.getElementById('input-form').classList.add('hidden');
-  document.getElementById('account-info').classList.remove('hidden');
-  document.getElementById('amount-info').innerText = `💵 입금 금액: ${(count * 12000).toLocaleString()}원`;
-}
+  // 입금 금액 표시
+  document.getElementById('payment-amount').innerText = `💵 입금 금액: ${(count * 12000).toLocaleString()}원`;
 
-function submitBooking() {
-  if (!tempData) {
+  document.getElementById('form-container').style.display = 'none';
+  document.getElementById('payment-info').style.display = 'block';
+});
+
+document.getElementById('confirm-payment').addEventListener('click', function() {
+  if (!tempBookingData) {
     alert('에러가 발생했습니다.');
     return;
   }
 
-  const form = document.createElement('form');
-  form.action = webAppUrl;
-  form.method = 'POST';
-  form.target = 'hidden_iframe';
+  fetch(webAppUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'new',
+      name: tempBookingData.name,
+      phone: tempBookingData.phone,
+      count: tempBookingData.count,
+      drink: tempBookingData.drink
+    })
+  })
+  .then(response => response.text())
+  .then(result => {
+    if (result === 'full') {
+      alert('예매 마감되었습니다.');
+      return;
+    }
 
-  for (const key in tempData) {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = tempData[key];
-    form.appendChild(input);
-  }
-
-  const typeInput = document.createElement('input');
-  typeInput.type = 'hidden';
-  typeInput.name = 'type';
-  typeInput.value = 'new';
-  form.appendChild(typeInput);
-
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
-
-  document.getElementById('account-info').classList.add('hidden');
-  document.getElementById('result-info').classList.remove('hidden');
-  document.getElementById('result-info').innerHTML = `
-    ✅ 예매 접수 완료!<br><br>
-    <strong>예매자명:</strong> ${tempData.name}<br>
-    <strong>전화번호:</strong> ${tempData.phone}<br><br>
-    예매확인 페이지에서 예매번호를 조회할 수 있습니다.
-  `;
-}
+    // 예매가 완료되면 정보와 예매번호 표시
+    document.getElementById('payment-info').style.display = 'none';
+    document.getElementById('ticket-info').style.display = 'block';
+    document.getElementById('booking-info').innerHTML = `
+      예매번호: <strong>${result}</strong><br>
+      이름: <strong>${tempBookingData.name}</strong><br>
+      전화번호: <strong>${tempBookingData.phone}</strong><br>
+      인원수: <strong>${tempBookingData.count}</strong>명<br>
+      웰컴드링크: <strong>${tempBookingData.drink}</strong><br>
+      입금 완료 후, 예매확인 페이지에서 확인해 주세요.
+    `;
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('에러가 발생했습니다. 다시 시도해주세요.');
+  });
+});
 </script>
 
 </body>
