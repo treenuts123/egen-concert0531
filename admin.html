@@ -5,48 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>22.3도 티켓 관리자페이지</title>
   <style>
-    body {
-      font-family: '맑은 고딕', sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      font-size: 0.9em;
-    }
-    th {
-      background-color: #e0e0e0;
-    }
-    input[type="password"] {
-      padding: 8px;
-      margin-top: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      width: 200px;
-    }
-    button {
-      padding: 8px 15px;
-      margin: 10px;
-      background-color: #5c85d6;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #486fb8;
-    }
-    #admin-content {
-      display: none;
-    }
+    body { font-family: '맑은 고딕', sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; font-size: 0.9em; }
+    th { background-color: #e0e0e0; }
+    input[type="password"], input[type="text"] { padding: 8px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; width: 200px; }
+    button { padding: 5px 10px; margin: 5px; background-color: #5c85d6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; }
+    button:hover { background-color: #486fb8; }
+    #admin-content { display: none; }
+    .stats { margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -61,6 +28,12 @@
 
 <div id="admin-content">
   <h2>예매 리스트</h2>
+  <input type="text" id="search" placeholder="예매번호 검색">
+  <button onclick="searchBooking()">검색</button>
+  <div class="stats">
+    <p>남은 좌석 수: <span id="seats-left"></span></p>
+    <p>웰컴드링크 통계: <span id="drink-stats"></span></p>
+  </div>
   <table>
     <thead>
       <tr>
@@ -70,10 +43,10 @@
         <th>인원수</th>
         <th>웰컴드링크</th>
         <th>입금확인</th>
+        <th>처리</th>
       </tr>
     </thead>
-    <tbody id="reservation-list">
-    </tbody>
+    <tbody id="reservation-list"></tbody>
   </table>
 </div>
 
@@ -81,6 +54,8 @@
 const sheetId = "1bH5EDVNvqzaATfuckYcLCNmgDa9aaw26fEN5d5diU6U";
 const apiKey = "AIzaSyBLa0VxeCOcOiJYKnte5LXi-ZN7p-rn_KE";
 const sheetName = "Sheet1";
+const webAppUrl = "https://script.google.com/macros/s/AKfycbwLeXMjiWXINmYMe6CAGZEYJFX5KR4wS3ZPxf4aweJ6WXTVsWunCBAqdJ8P9BdyotfQVw/exec";
+let reservations = [];
 
 function checkPassword() {
   const input = document.getElementById('password').value;
@@ -97,26 +72,79 @@ function loadReservations() {
   fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
     .then(response => response.json())
     .then(data => {
-      const rows = data.values.slice(1);
-      const tbody = document.getElementById('reservation-list');
-      tbody.innerHTML = '';
-
-      rows.forEach((row, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${row[0]}</td>
-          <td>${row[1]}</td>
-          <td>${row[2]}</td>
-          <td>${row[3]}</td>
-          <td>${row[4]}</td>
-          <td>${row[5]}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+      reservations = data.values.slice(1);
+      renderTable(reservations);
+      updateStats(reservations);
     })
     .catch(error => {
       console.error('Error:', error);
     });
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('reservation-list');
+  tbody.innerHTML = '';
+
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row[0]}</td>
+      <td>${row[1]}</td>
+      <td>${row[2]}</td>
+      <td>${row[3]}</td>
+      <td>${row[4]}</td>
+      <td id="status-${row[0]}">${row[5]}</td>
+      <td><button onclick="confirmPayment('${row[0]}')">입금확인</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function confirmPayment(bookingNumber) {
+  if (!confirm(`${bookingNumber} 예매자의 입금을 확인하시겠습니까?`)) return;
+
+  fetch(webAppUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'update',
+      bookingNumber: bookingNumber
+    })
+  })
+  .then(response => response.text())
+  .then(result => {
+    if (result === 'success') {
+      document.getElementById(`status-${bookingNumber}`).innerText = '입금완료';
+      alert('입금확인 처리 완료!');
+    } else {
+      alert('처리 실패. 다시 시도해주세요.');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('오류가 발생했습니다.');
+  });
+}
+
+function searchBooking() {
+  const searchValue = document.getElementById('search').value.trim();
+  const filtered = reservations.filter(row => row[0] && row[0].includes(searchValue));
+  renderTable(filtered);
+}
+
+function updateStats(data) {
+  let totalSeats = 50;
+  let usedSeats = data.reduce((sum, row) => sum + parseInt(row[3] || 0), 0);
+  document.getElementById('seats-left').innerText = totalSeats - usedSeats;
+
+  const drinkCounts = {};
+  data.forEach(row => {
+    const drink = row[4];
+    if (drink) drinkCounts[drink] = (drinkCounts[drink] || 0) + 1;
+  });
+
+  document.getElementById('drink-stats').innerText = Object.entries(drinkCounts)
+    .map(([drink, count]) => `${drink}: ${count}개`).join(', ');
 }
 </script>
 
