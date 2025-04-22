@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>22.3도 티켓 관리자페이지</title>
+  <style>
+    body {
+      font-family: '맑은 고딕', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      font-size: 0.9em;
+    }
+    th {
+      background-color: #e0e0e0;
+    }
+    input[type="password"] {
+      padding: 8px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 200px;
+    }
+    button {
+      padding: 8px 15px;
+      margin: 10px;
+      background-color: #5c85d6;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #486fb8;
+    }
+    #admin-content {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>22.3도 관리자 페이지</h1>
+
+<div id="login">
+  <p>비밀번호를 입력하세요:</p>
+  <input type="password" id="password">
+  <button onclick="checkPassword()">확인</button>
+</div>
+
+<div id="admin-content">
+  <h2>예매 리스트</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>예매번호</th>
+        <th>이름</th>
+        <th>전화번호</th>
+        <th>인원수</th>
+        <th>웰컴드링크</th>
+        <th>입금확인</th>
+      </tr>
+    </thead>
+    <tbody id="reservation-list">
+    </tbody>
+  </table>
+</div>
+
+<script>
+const sheetId = "1bH5EDVNvqzaATfuckYcLCNmgDa9aaw26fEN5d5diU6U";
+const apiKey = "AIzaSyBLa0VxeCOcOiJYKnte5LXi-ZN7p-rn_KE";
+const sheetName = "Sheet1";
+
+function checkPassword() {
+  const input = document.getElementById('password').value;
+  if (input === 'wjdehdrn1!') {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    loadReservations();
+  } else {
+    alert('비밀번호가 틀렸습니다.');
+  }
+}
+
+function loadReservations() {
+  fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
+    .then(response => response.json())
+    .then(data => {
+      const rows = data.values.slice(1);
+      const tbody = document.getElementById('reservation-list');
+      tbody.innerHTML = '';
+
+      rows.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row[0]}</td>
+          <td>${row[1]}</td>
+          <td>${row[2]}</td>
+          <td>${row[3]}</td>
+          <td>${row[4]}</td>
+          <td>${row[5]}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+</script>
+
+</body>
+</html>
