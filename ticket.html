@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>22.3도 티켓 예매</title>
   <style>
     body {
@@ -13,11 +13,8 @@
       padding: 20px;
       text-align: center;
     }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-    .form-container {
+    .hidden { display: none; }
+    .form-container, .info-container {
       background: white;
       padding: 20px;
       border-radius: 10px;
@@ -25,14 +22,10 @@
       margin: 20px auto;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-    }
     input, select, button {
       width: 100%;
       padding: 10px;
-      margin-bottom: 15px;
+      margin: 8px 0;
       border-radius: 5px;
       border: 1px solid #ccc;
       font-size: 1em;
@@ -46,48 +39,35 @@
     button:hover {
       background-color: #486fb8;
     }
-    #payment-info, #ticket-info {
-      margin-top: 30px;
-    }
   </style>
 </head>
 <body>
 
 <h1>22.3도 티켓 예매</h1>
-<div id="seat-info">남은 좌석: 확인 필요</div>
+<div id="seat-info">남은 좌석: 확인 중...</div>
 
-<div class="form-container">
-  <form id="ticketForm" target="hidden_iframe" onsubmit="submitted=true;">
-    <label for="name">이름 (입금자명)</label>
-    <input type="text" id="name" name="name" required />
-
-    <label for="phone">전화번호</label>
-    <input type="text" id="phone" name="phone" required />
-
-    <label for="count">인원수</label>
-    <input type="number" id="count" name="count" min="1" max="5" required />
-
-    <label for="drink">웰컴드링크 선택</label>
-    <select id="drink" name="drink" required>
-      <option value="">선택하세요</option>
-      <option value="물">물</option>
-      <option value="콜라">콜라</option>
-      <option value="포카리">포카리</option>
-      <option value="맥주">맥주</option>
-    </select>
-
-    <button type="submit">입금 계좌 보기</button>
-  </form>
+<div class="form-container" id="input-form">
+  <input type="text" id="name" placeholder="이름 (입금자명)" required />
+  <input type="text" id="phone" placeholder="전화번호" required />
+  <input type="number" id="count" min="1" max="5" placeholder="인원수" required />
+  <select id="drink" required>
+    <option value="">웰컴드링크 선택</option>
+    <option value="물">물</option>
+    <option value="콜라">콜라</option>
+    <option value="포카리">포카리</option>
+    <option value="맥주">맥주</option>
+  </select>
+  <button onclick="showAccount()">예매하기</button>
 </div>
 
-<div id="payment-info" style="display:none;">
+<div class="info-container hidden" id="account-info">
   <h2>입금 안내</h2>
-  <p>🏦 하나은행 123-4567-8901-23 (예금주: 홍길동)</p>
+  <p>🏦 하나은행 123-4567-8901-23 (홍길동)</p>
   <p id="amount-info"></p>
-  <button onclick="confirmPayment()">입금 완료했습니다</button>
+  <button onclick="submitBooking()">입금 완료했습니다</button>
 </div>
 
-<div id="ticket-info" style="display:none;"></div>
+<div class="info-container hidden" id="result-info"></div>
 
 <iframe name="hidden_iframe" style="display:none;"></iframe>
 
@@ -96,9 +76,7 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbwisdiasPRwbHlSF5JnuJ
 
 let tempData = null;
 
-document.getElementById('ticketForm').addEventListener('submit', function(event) {
-  event.preventDefault();
-  
+function showAccount() {
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const count = parseInt(document.getElementById('count').value);
@@ -110,17 +88,18 @@ document.getElementById('ticketForm').addEventListener('submit', function(event)
   }
 
   tempData = { name, phone, count, drink };
-  document.getElementById('amount-info').innerText = `💵 입금 금액: ${(count * 12000).toLocaleString()}원`;
-  document.getElementById('payment-info').style.display = 'block';
-});
 
-function confirmPayment() {
+  document.getElementById('input-form').classList.add('hidden');
+  document.getElementById('account-info').classList.remove('hidden');
+  document.getElementById('amount-info').innerText = `💵 입금 금액: ${(count * 12000).toLocaleString()}원`;
+}
+
+function submitBooking() {
   if (!tempData) {
     alert('에러가 발생했습니다.');
     return;
   }
 
-  // Google Form 방식으로 요청 보내기
   const form = document.createElement('form');
   form.action = webAppUrl;
   form.method = 'POST';
@@ -144,10 +123,13 @@ function confirmPayment() {
   form.submit();
   document.body.removeChild(form);
 
-  document.getElementById('payment-info').style.display = 'none';
-  document.getElementById('ticket-info').innerHTML = `
-    ✅ 예매가 접수되었습니다.<br><br>
-    <strong>예매 확인 페이지</strong>를 통해 상태를 확인해주세요.
+  document.getElementById('account-info').classList.add('hidden');
+  document.getElementById('result-info').classList.remove('hidden');
+  document.getElementById('result-info').innerHTML = `
+    ✅ 예매 접수 완료!<br><br>
+    <strong>예매자명:</strong> ${tempData.name}<br>
+    <strong>전화번호:</strong> ${tempData.phone}<br><br>
+    예매확인 페이지에서 예매번호를 조회할 수 있습니다.
   `;
 }
 </script>
