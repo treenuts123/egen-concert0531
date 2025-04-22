@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>22.3도 예매 확인</title>
+  <style>
+    body { font-family: '맑은 고딕', sans-serif; background-color: #f4f4f9; text-align: center; padding: 20px; }
+    input, button { margin: 10px; padding: 10px; font-size: 1em; }
+    .result { margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h1>22.3도 예매 확인</h1>
+
+<input type="text" id="bookingNumber" placeholder="예매번호 입력">
+<button onclick="checkReservation()">확인</button>
+
+<div class="result" id="result"></div>
+
+<script>
+const sheetId = "1bH5EDVNvqzaATfuckYcLCNmgDa9aaw26fEN5d5diU6U";
+const apiKey = "AIzaSyBLa0VxeCOcOiJYKnte5LXi-ZN7p-rn_KE";
+const sheetName = "Sheet1";
+
+function checkReservation() {
+  const bookingNumber = document.getElementById('bookingNumber').value.trim();
+  if (!bookingNumber) {
+    alert('예매번호를 입력하세요.');
+    return;
+  }
+
+  fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
+    .then(response => response.json())
+    .then(data => {
+      const rows = data.values.slice(1); // 첫줄은 헤더니까 빼기
+      const found = rows.find(row => row[0] === bookingNumber);
+
+      const resultDiv = document.getElementById('result');
+      if (found) {
+        resultDiv.innerHTML = `
+          <h3>예매자: ${found[1]}</h3>
+          <p>전화번호: ${found[2]}</p>
+          <p>인원수: ${found[3]}명</p>
+          <p>웰컴드링크: ${found[4]}</p>
+          <p>입금상태: <strong>${found[5]}</strong></p>
+          ${found[5] === '취소요청' ? `
+          <p style="color:red;">취소 요청 중입니다.</p>
+          <p>환불은행: ${found[6]}</p>
+          <p>환불계좌번호: ${found[7]}</p>
+          ` : ''}
+        `;
+      } else {
+        resultDiv.innerHTML = '<p style="color:red">예매번호를 찾을 수 없습니다.</p>';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('오류가 발생했습니다.');
+    });
+}
+</script>
+
+</body>
+</html>
