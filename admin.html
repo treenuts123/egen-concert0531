@@ -179,7 +179,9 @@ function updateStats(data) {
   document.getElementById('drink-stats').innerText = Object.entries(drinkCounts)
     .map(([drink, count]) => `${drink}: ${count}개`).join(', ');
 }
-</script>
 
+  
+</script>
+setInterval(loadReservations, 10000); // 10초마다 새로고침
 </body>
 </html>
