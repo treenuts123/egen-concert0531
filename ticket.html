@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>22.3도 티켓 예매</title>
+  <style>
+    body {
+      font-family: '맑은 고딕', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5em;
+    }
+    .info {
+      margin: 10px 0;
+      font-size: 1.2em;
+    }
+    .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 20px auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #5c85d6;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #486fb8;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+<h1>22.3도 티켓 예매</h1>
+<div class="info">남은 좌석: <span id="seats-left">50</span>석</div>
+
+<div class="form-container" id="form-container">
+  <form id="ticketForm">
+    <label for="name">이름 (입금자명)</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="phone">전화번호</label>
+    <input type="text" id="phone" name="phone" required>
+
+    <label for="count">인원수</label>
+    <input type="number" id="count" name="count" min="1" max="5" required>
+
+    <label for="drink">웰컴드링크 선택</label>
+    <select id="drink" name="drink" required>
+      <option value="">선택하세요</option>
+      <option value="물">물</option>
+      <option value="콜라">콜라</option>
+      <option value="포카리">포카리</option>
+      <option value="맥주">맥주</option>
+    </select>
+
+    <button type="submit">예매하기</button>
+  </form>
+</div>
+
+<div id="message"></div>
+
+<script>
+  let maxSeats = 50;
+  let currentBookingNumber = 1;
+
+  document.getElementById('ticketForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const count = parseInt(document.getElementById('count').value);
+    const drink = document.getElementById('drink').value;
+
+    if (count > maxSeats) {
+      alert('남은 좌석보다 많은 인원을 선택했습니다.');
+      return;
+    }
+
+    const bookingNumber = `EG-250531${String(currentBookingNumber).padStart(4, '0')}`;
+    const amount = 12000 * count;
+
+    // Google Apps Script로 데이터 전송
+    fetch('https://script.google.com/macros/s/AKfycbwLeXMjiWXINmYMe6CAGZEYJFX5KR4wS3ZPxf4aweJ6WXTVsWunCBAqdJ8P9BdyotfQVw/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bookingNumber: bookingNumber,
+        name: name,
+        phone: phone,
+        count: count,
+        drink: drink
+      })
+    })
+    .then(response => response.text())
+    .then(result => {
+      if (result === 'success') {
+        document.getElementById('message').innerHTML = `
+          예매가 완료되었습니다.<br>
+          당신의 예매번호: <strong>${bookingNumber}</strong><br>
+          입금 금액: <strong>${amount.toLocaleString()}원</strong>
+        `;
+
+        maxSeats -= count;
+        currentBookingNumber++;
+        document.getElementById('seats-left').innerText = maxSeats;
+
+        if (maxSeats <= 0) {
+          document.getElementById('form-container').innerHTML = '<h2>예매 마감되었습니다</h2>';
+        }
+
+        document.getElementById('ticketForm').reset();
+      } else {
+        alert('에러가 발생했습니다. 다시 시도해주세요.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('에러가 발생했습니다. 다시 시도해주세요.');
+    });
+  });
+</script>
+
+</body>
+</html>
