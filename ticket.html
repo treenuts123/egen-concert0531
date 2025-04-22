@@ -96,6 +96,23 @@ const webAppUrl = "https://script.google.com/macros/s/AKfycbwLeXMjiWXINmYMe6CAGZ
 
 let tempBookingData = null;
 
+// 한글 자음/모음만 있는지 체크하는 함수
+function isOnlyConsonantOrVowel(text) {
+  const only = /^[ㄱ-ㅎㅏ-ㅣ]+$/;
+  return only.test(text);
+}
+
+// 숫자만 입력 가능하게 막기
+function allowOnlyNumbers(event) {
+  if (!/[0-9]/.test(event.key)) {
+    event.preventDefault();
+    alert('숫자만 입력해주세요.');
+  }
+}
+
+document.getElementById('phone').addEventListener('keypress', allowOnlyNumbers);
+document.getElementById('count').addEventListener('keypress', allowOnlyNumbers);
+
 document.getElementById('ticketForm').addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -106,6 +123,11 @@ document.getElementById('ticketForm').addEventListener('submit', function(event)
 
   if (!name || !phone || !count || !drink) {
     alert('모든 정보를 입력해주세요.');
+    return;
+  }
+
+  if (isOnlyConsonantOrVowel(name)) {
+    alert('이름을 확인해주세요.');
     return;
   }
 
