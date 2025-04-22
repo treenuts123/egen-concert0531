@@ -53,8 +53,12 @@
   </style>
 </head>
 <body>
-  <a href="index.html" class="home-btn">처음으로 돌아가기</a>
+
+<a href="index.html" class="home-btn">처음으로 돌아가기</a>
+
 <h1>22.3도 티켓 예매</h1>
+
+<h2>남은 좌석: <span id="seats-left">50</span>석</h2>
 
 <div class="form-container" id="form-container">
   <form id="ticketForm">
@@ -92,17 +96,19 @@
 <div id="message"></div>
 
 <script>
-const webAppUrl = "https://script.google.com/macros/s/AKfycbwBAf8YXhAwHQV5dkUY-OJIJ3URHG-vrdAT3QkLCjpRqux5b3OBqqdPRlN-6RBUK1l46g/exec";
-
+// 설정
+const webAppUrl = "https://script.google.com/macros/s/AKfycbwisdiasPRwbHlSF5JnuJxRiuDrkNe5uemlLlYYxGLo4BXKEYhGEx7wVPN-WFIEJZ-JnA/exec"; // 네 최신 URL로 수정
 let tempBookingData = null;
+let maxSeats = 50;
+let currentBookingNumber = 1;
 
-// 한글 자음/모음만 있는지 체크하는 함수
+// 자음/모음만 필터
 function isOnlyConsonantOrVowel(text) {
   const only = /^[ㄱ-ㅎㅏ-ㅣ]+$/;
   return only.test(text);
 }
 
-// 숫자만 입력 가능하게 막기
+// 숫자만 입력 허용
 function allowOnlyNumbers(event) {
   if (!/[0-9]/.test(event.key)) {
     event.preventDefault();
@@ -110,9 +116,11 @@ function allowOnlyNumbers(event) {
   }
 }
 
+// 이벤트 연결
 document.getElementById('phone').addEventListener('keypress', allowOnlyNumbers);
 document.getElementById('count').addEventListener('keypress', allowOnlyNumbers);
 
+// 예매 폼 제출
 document.getElementById('ticketForm').addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -131,13 +139,28 @@ document.getElementById('ticketForm').addEventListener('submit', function(event)
     return;
   }
 
-  tempBookingData = { name, phone, count, drink };
+  if (count > maxSeats) {
+    alert('남은 좌석보다 많은 인원을 선택했습니다.');
+    return;
+  }
 
-  document.getElementById('payment-amount').innerHTML = `<strong>입금 금액:</strong> ${(count * 12000).toLocaleString()}원`;
+  tempBookingData = { name, phone, count, drink };
+  const bookingNumber = "EG-250531" + String(currentBookingNumber).padStart(4, '0');
+  tempBookingData.bookingNumber = bookingNumber;
+  currentBookingNumber++;
+
+  maxSeats -= count;
+  document.getElementById('seats-left').innerText = maxSeats;
+
+  document.getElementById('payment-amount').innerHTML = `
+    입금 금액: ${(count * 12000).toLocaleString()}원<br>
+    당신의 예매번호: <strong>${bookingNumber}</strong>
+  `;
   document.getElementById('form-container').style.display = "none";
   document.getElementById('payment-container').style.display = "block";
 });
 
+// 입금완료 버튼
 document.getElementById('confirm-payment').addEventListener('click', function() {
   if (!tempBookingData) {
     alert('오류가 발생했습니다.');
@@ -163,7 +186,7 @@ document.getElementById('confirm-payment').addEventListener('click', function() 
       document.getElementById('payment-container').style.display = "none";
       document.getElementById('message').innerHTML = `
         🎫 예매 완료!<br><br>
-        당신의 예매번호는 <strong>${result}</strong> 입니다.<br><br>
+        당신의 예매번호는 <strong>${tempBookingData.bookingNumber}</strong> 입니다.<br><br>
         입금 완료 후, 예매확인 페이지에서 확인해 주세요.
       `;
     }
