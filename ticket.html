@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>22.3도 티켓 예매</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
     body {
       font-family: '맑은 고딕', sans-serif;
@@ -13,11 +14,9 @@
       padding: 20px;
       text-align: center;
     }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-    .form-container {
+    h1 { font-size: 2.5em; margin-bottom: 5px; }
+    .top-bar { font-size: 0.9em; margin-bottom: 15px; }
+    .form-container, .info-container {
       background: white;
       padding: 20px;
       border-radius: 10px;
@@ -25,51 +24,37 @@
       margin: 20px auto;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 1em;
+    label { display: block; margin: 10px 0 5px; text-align: left; }
+    input, select {
+      width: 100%; padding: 10px; margin-bottom: 15px;
+      border-radius: 5px; border: 1px solid #ccc;
     }
     button {
-      background-color: #5c85d6;
-      color: white;
-      border: none;
-      cursor: pointer;
+      width: 100%; padding: 10px;
+      background-color: #5c85d6; color: white; border: none;
+      border-radius: 5px; cursor: pointer; font-size: 1em;
     }
-    button:hover {
-      background-color: #486fb8;
-    }
-    #payment-info, #ticket-info {
-      margin-top: 30px;
-    }
-    #message {
-      font-size: 1.2em;
-      color: green;
-    }
+    button:hover { background-color: #486fb8; }
+    .fixed-bottom { font-size: 0.85em; margin-top: 40px; color: #888; }
   </style>
 </head>
 <body>
 
 <h1>22.3도 티켓 예매</h1>
-<div id="seats-info">남은 좌석: <span id="seats-left">50</span>석</div>
+<div class="top-bar">
+  <a href="index.html">처음으로 돌아가기</a> | <span id="seat-count">잔여좌석: 확인 중...</span>
+</div>
 
-<div class="form-container" id="form-container">
+<div class="form-container" id="form-box">
   <form id="ticketForm">
     <label for="name">이름 (입금자명)</label>
-    <input type="text" id="name" required />
+    <input type="text" id="name" required>
 
-    <label for="phone">전화번호</label>
-    <input type="text" id="phone" required />
+    <label for="phone">전화번호 (11자리)</label>
+    <input type="text" id="phone" maxlength="11" required>
 
-    <label for="count">인원수</label>
-    <input type="number" id="count" min="1" max="5" required />
+    <label for="count">인원수 (최대 10명)</label>
+    <input type="number" id="count" min="1" max="10" required>
 
     <label for="drink">웰컴드링크 선택</label>
     <select id="drink" required>
@@ -80,92 +65,93 @@
       <option value="맥주">맥주</option>
     </select>
 
-    <button type="submit">예매 계좌 정보 보기</button>
+    <label><input type="checkbox" id="agree"> 예매 시 개인정보 수집 및 이용에 동의합니다.</label>
+    <button type="submit">예매하기</button>
   </form>
 </div>
 
-<div id="payment-info" style="display:none;">
+<div class="info-container" id="payment-box" style="display:none;">
   <h2>입금 안내</h2>
-  <p><strong>은행명:</strong> 하나은행</p>
-  <p><strong>계좌번호:</strong> 123-4567-8901-23</p>
-  <p><strong>예금주:</strong> 홍길동</p>
-  <p id="payment-amount"></p>
-  <button id="confirm-payment">입금 완료했습니다</button>
+  <p>🏦 하나은행 123-4567-8901-23 (예금주: 홍길동)</p>
+  <p id="amount-info"></p>
+  <button onclick="completePayment()">입금 완료했습니다</button>
 </div>
 
-<div id="ticket-info" style="display:none;">
-  <h3>예매번호와 예매자 정보</h3>
-  <p id="booking-info"></p>
-  <button onclick="window.location.reload()">처음으로 돌아가기</button>
-</div>
+<div class="info-container" id="done-box" style="display:none;"></div>
+<div class="fixed-bottom">문의: treenuts.official@gmail.com</div>
 
 <script>
-const webAppUrl = "https://script.google.com/macros/s/AKfycbwisdiasPRwbHlSF5JnuJxRiuDrkNe5uemlLlYYxGLo4BXKEYhGEx7wVPN-WFIEJZ-JnA/exec";
-let tempBookingData = null;
+const supabase = supabase.createClient(
+  'https://sdnbavlcgejmvdtmzbep.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ'
+);
 
-document.getElementById('ticketForm').addEventListener('submit', function(event) {
-  event.preventDefault();
-  
+let tempData = null;
+
+// 잔여좌석 불러오기
+async function fetchSeats() {
+  const { data, error } = await supabase.from('tickets').select('count, status');
+  if (!error) {
+    const used = data.filter(d => d.status !== '취소요청').reduce((sum, r) => sum + r.count, 0);
+    document.getElementById('seat-count').innerText = `잔여좌석: ${50 - used}석`;
+  }
+}
+fetchSeats();
+
+// 제출 이벤트
+const form = document.getElementById('ticketForm');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
   const count = parseInt(document.getElementById('count').value);
   const drink = document.getElementById('drink').value;
+  const agree = document.getElementById('agree').checked;
 
-  if (!name || !phone || !count || !drink) {
-    alert('모든 항목을 입력해주세요.');
+  if (!name || !phone || !count || !drink || !agree) {
+    alert('모든 항목을 정확히 입력하고 동의해주세요.');
     return;
   }
 
-  tempBookingData = { name, phone, count, drink };
-
-  // 입금 금액 표시
-  document.getElementById('payment-amount').innerText = `💵 입금 금액: ${(count * 12000).toLocaleString()}원`;
-
-  document.getElementById('form-container').style.display = 'none';
-  document.getElementById('payment-info').style.display = 'block';
+  tempData = { name, phone, count, drink };
+  document.getElementById('amount-info').innerText = `총 입금 금액: ${(count * 12000).toLocaleString()}원`;
+  document.getElementById('form-box').style.display = 'none';
+  document.getElementById('payment-box').style.display = 'block';
 });
 
-document.getElementById('confirm-payment').addEventListener('click', function() {
-  if (!tempBookingData) {
-    alert('에러가 발생했습니다.');
+// 입금 완료 버튼
+async function completePayment() {
+  if (!tempData) return alert('오류 발생. 다시 시도해주세요.');
+
+  const today = new Date();
+  const yyyymmdd = `${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}`;
+
+  // 마지막 booking_num 추출
+  const { data: all, error } = await supabase
+    .from('tickets')
+    .select('booking_num')
+    .like('booking_num', `EG-${yyyymmdd}%`);
+
+  const maxNum = all?.map(r => parseInt(r.booking_num?.slice(-4))).filter(Boolean);
+  const next = maxNum.length ? Math.max(...maxNum) + 1 : 1;
+  const booking_num = `EG-${yyyymmdd}${String(next).padStart(4, '0')}`;
+
+  const { error: insertError } = await supabase.from('tickets').insert([{ ...tempData, booking_num }]);
+  if (insertError) {
+    alert('등록 중 오류가 발생했습니다.');
     return;
   }
 
-  fetch(webAppUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'new',
-      name: tempBookingData.name,
-      phone: tempBookingData.phone,
-      count: tempBookingData.count,
-      drink: tempBookingData.drink
-    })
-  })
-  .then(response => response.text())
-  .then(result => {
-    if (result === 'full') {
-      alert('예매 마감되었습니다.');
-      return;
-    }
-
-    // 예매가 완료되면 정보와 예매번호 표시
-    document.getElementById('payment-info').style.display = 'none';
-    document.getElementById('ticket-info').style.display = 'block';
-    document.getElementById('booking-info').innerHTML = `
-      예매번호: <strong>${result}</strong><br>
-      이름: <strong>${tempBookingData.name}</strong><br>
-      전화번호: <strong>${tempBookingData.phone}</strong><br>
-      인원수: <strong>${tempBookingData.count}</strong>명<br>
-      웰컴드링크: <strong>${tempBookingData.drink}</strong><br>
-      입금 완료 후, 예매확인 페이지에서 확인해 주세요.
-    `;
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('에러가 발생했습니다. 다시 시도해주세요.');
-  });
-});
+  document.getElementById('payment-box').style.display = 'none';
+  document.getElementById('done-box').style.display = 'block';
+  document.getElementById('done-box').innerHTML = `
+    ✅ 예매 완료!<br><br>
+    예매번호: <strong>${booking_num}</strong><br>
+    예매확인 페이지에서 확인 가능합니다.<br><br>
+    *입금 확인 후 상태가 변경됩니다.
+  `;
+  fetchSeats();
+}
 </script>
 
 </body>
