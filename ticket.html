@@ -2,158 +2,205 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>22.3도 티켓 예매</title>
-  <style>
-    body {
-      font-family: '맑은 고딕', sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-    .form-container, #payment-info, #ticket-info {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: 20px auto;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-    }
-    button {
-      background-color: #5c85d6;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #486fb8;
-    }
-    #payment-info, #ticket-info {
-      display: none;
-    }
-  </style>
-</head>
-<body>
+  <title>티켓 예매</title>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-<h1>22.3도 티켓 예매</h1>
-<div id="seat-info">남은 좌석: 확인 필요</div>
+    // Supabase 연결
+    const supabaseUrl = 'https://sdnbavlcgejmvdtmzbep.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ'
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
-<div class="form-container">
-  <form id="booking-form">
-    <label for="name">이름 (입금자명)</label>
-    <input type="text" id="name" name="name" required>
+    let maxSeats = 50;
+    let currentSeats = 0;
 
-    <label for="phone">전화번호</label>
-    <input type="text" id="phone" name="phone" required>
+    async function fetchCurrentReservations() {
+      const { data, error } = await supabase
+        .from('reservations')
+        .select('count, status')
 
-    <label for="count">인원수</label>
-    <input type="number" id="count" name="count" min="1" max="10" required>
+      if (error) {
+        console.error('잔여좌석 불러오기 실패', error)
+        return;
+      }
 
-    <label for="drink">웰컴드링크 선택</label>
-    <select id="drink" name="drink" required>
-      <option value="">선택하세요</option>
-      <option value="물">물</option>
-      <option value="콜라">콜라</option>
-      <option value="포카리">포카리</option>
-      <option value="맥주">맥주</option>
-    </select>
-
-    <label>
-      <input type="checkbox" id="agreement" required>
-      이용약관에 동의합니다.
-    </label>
-
-    <button type="submit">예매하기</button>
-  </form>
-</div>
-
-<div id="payment-info">
-  <h2>입금 안내</h2>
-  <p>🏦 하나은행 123-4567-8901-23 (예금주: 홍길동)</p>
-  <p id="amount-info"></p>
-  <button id="confirm-payment">입금 완료했습니다</button>
-</div>
-
-<div id="ticket-info"></div>
-
-<script>
-  const supabaseUrl = 'https://sdnbavlcgejmvdtmzbep.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ';
-
-  let tempBooking = null;
-
-  document.getElementById("booking-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const count = parseInt(document.getElementById("count").value);
-    const drink = document.getElementById("drink").value;
-    const agreement = document.getElementById("agreement").checked;
-
-    if (!name || !phone || !count || !drink || !agreement) {
-      alert("모든 항목을 입력하고 약관에 동의해야 합니다.");
-      return;
+      const validReservations = data.filter(r => r.status === '입금대기' || r.status === '입금완료');
+      currentSeats = validReservations.reduce((sum, r) => sum + (r.count || 0), 0);
+      updateSeatDisplay();
     }
 
-    tempBooking = { name, phone, count, drink };
-    document.getElementById("amount-info").innerText = `💵 입금 금액: ${(count * 12000).toLocaleString()}원`;
-    document.getElementById("payment-info").style.display = "block";
-  });
+    function updateSeatDisplay() {
+      const remaining = maxSeats - currentSeats;
+      document.getElementById('seatInfo').innerText = `남은 좌석: ${remaining} / ${maxSeats}`;
+    }
 
-  document.getElementById("confirm-payment").addEventListener("click", async function() {
-    if (!tempBooking) return alert("에러가 발생했습니다.");
+    window.addEventListener('load', fetchCurrentReservations);
 
-    const { name, phone, count, drink } = tempBooking;
-    const response = await fetch(`${supabaseUrl}/rest/v1/tickets`, {
-      method: "POST",
-      headers: {
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify({
+    // 예약 진행 상태
+    let reservationInfo = {};
+
+    window.handleReserveClick = function() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const count = parseInt(document.getElementById('count').value);
+
+      const water = parseInt(document.getElementById('water').value);
+      const cola = parseInt(document.getElementById('cola').value);
+      const pocari = parseInt(document.getElementById('pocari').value);
+      const beer = parseInt(document.getElementById('beer').value);
+
+      if (!name || !phone || !count) {
+        alert('모든 필드를 입력해 주세요.');
+        return;
+      }
+
+      const totalDrinks = water + cola + pocari + beer;
+      if (totalDrinks > count) {
+        alert('선택한 웰컴드링크 수량이 인원수보다 많습니다.');
+        return;
+      }
+
+      reservationInfo = {
         name,
         phone,
         count,
-        drink,
-        status: "입금대기"
-      })
-    });
+        welcome_drinks: {
+          "물": water,
+          "콜라": cola,
+          "포카리": pocari,
+          "맥주": beer
+        }
+      };
 
-    const result = await response.json();
-    if (response.ok) {
-      const ticket = result[0];
-      document.getElementById("payment-info").style.display = "none";
-      document.getElementById("ticket-info").innerHTML = `
-        ✅ 예매가 접수되었습니다.<br><br>
-        예매번호: <strong>${ticket.booking_num}</strong><br>
-        입금 완료 후 예매확인 페이지에서 확인해주세요.<br><br>
-        문의: <a href="mailto:treenuts.official@gmail.com">treenuts.official@gmail.com</a>
+      // 입력폼 숨기고 확인창 보여줌
+      document.getElementById('inputArea').style.display = 'none';
+      document.getElementById('confirmArea').style.display = 'block';
+
+      // 예매자 정보 표시
+      document.getElementById('confirmInfo').innerHTML = `
+        <p>이름: ${name}</p>
+        <p>전화번호: ${phone}</p>
+        <p>인원수: ${count}</p>
+        <p>웰컴드링크: 물 ${water}개, 콜라 ${cola}개, 포카리 ${pocari}개, 맥주 ${beer}개</p>
+        <p>입금 계좌번호: 우리은행 123-456789-01-234 (예금주: 트리넛츠)</p>
       `;
-    } else {
-      alert("에러가 발생했습니다. 다시 시도해주세요.");
     }
-  });
-</script>
+
+    window.handleModifyClick = function() {
+      // 수정하기 눌렀을 때 입력폼 복귀
+      document.getElementById('inputArea').style.display = 'block';
+      document.getElementById('confirmArea').style.display = 'none';
+    }
+
+    function generateBookingNumber() {
+      return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    window.handleCompleteClick = async function() {
+      const booking_number = generateBookingNumber();
+
+      const { data, error } = await supabase
+        .from('reservations')
+        .insert([
+          {
+            name: reservationInfo.name,
+            phone: reservationInfo.phone,
+            count: reservationInfo.count,
+            welcome_drinks: reservationInfo.welcome_drinks,
+            booking_number: booking_number,
+            status: '입금대기'
+          }
+        ]);
+
+      if (error) {
+        console.error('예매 저장 실패', error)
+        alert('예매 저장 중 오류가 발생했습니다.');
+        return;
+      }
+
+      // 화면 교체
+      document.getElementById('confirmArea').style.display = 'none';
+      document.getElementById('completeArea').style.display = 'block';
+
+      document.getElementById('completeInfo').innerHTML = `
+        <p>예매가 완료되었습니다!</p>
+        <p>예약자명: ${reservationInfo.name}</p>
+        <p>전화번호: ${reservationInfo.phone}</p>
+        <p>예약번호: ${booking_number}</p>
+        <p>※ 예매확인 페이지에서 예약번호로 조회할 수 있습니다.</p>
+      `;
+
+      // 남은좌석 다시 불러오기
+      fetchCurrentReservations();
+    }
+
+    window.moveToConfirm = function() {
+      window.location.href = 'confirm.html';
+    }
+
+    window.goBack = function() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</head>
+<body>
+  <h1>티켓 예매</h1>
+  <div id="seatInfo">남은 좌석: 불러오는 중...</div>
+  
+  <div id="inputArea">
+    <p><input type="text" id="name" placeholder="이름"></p>
+    <p><input type="text" id="phone" placeholder="전화번호"></p>
+    <p>
+      인원수:
+      <select id="count">
+        <option value="1">1명</option>
+        <option value="2">2명</option>
+        <option value="3">3명</option>
+        <option value="4">4명</option>
+        <option value="5">5명</option>
+      </select>
+    </p>
+    <h3>웰컴드링크 선택 (인원수 이내)</h3>
+    <p>물: 
+      <select id="water">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </p>
+    <p>콜라: 
+      <select id="cola">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </p>
+    <p>포카리: 
+      <select id="pocari">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </p>
+    <p>맥주: 
+      <select id="beer">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </p>
+
+    <p>
+      <button onclick="handleReserveClick()">예매하기</button>
+      <button onclick="moveToConfirm()">예매확인</button>
+      <button onclick="goBack()">뒤로가기</button>
+    </p>
+  </div>
+
+  <div id="confirmArea" style="display: none;">
+    <div id="confirmInfo"></div>
+    <p>
+      <button onclick="handleCompleteClick()">예매완료</button>
+      <button onclick="handleModifyClick()">수정하기</button>
+    </p>
+  </div>
+
+  <div id="completeArea" style="display: none;">
+    <div id="completeInfo"></div>
+    <p><button onclick="goBack()">뒤로가기</button></p>
+  </div>
 
 </body>
 </html>
