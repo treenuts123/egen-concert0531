@@ -3,10 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <title>티켓 예매</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 30px;
+      padding: 0;
+      background-color: #fafafa;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #seatInfo {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .button-group button {
+      flex: 1;
+    }
+    #confirmArea, #completeArea {
+      text-align: center;
+    }
+  </style>
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    // Supabase 연결
     const supabaseUrl = 'https://sdnbavlcgejmvdtmzbep.supabase.co'
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ'
     const supabase = createClient(supabaseUrl, supabaseKey)
@@ -36,7 +98,6 @@
 
     window.addEventListener('load', fetchCurrentReservations);
 
-    // 예약 진행 상태
     let reservationInfo = {};
 
     window.handleReserveClick = function() {
@@ -50,13 +111,13 @@
       const beer = parseInt(document.getElementById('beer').value);
 
       if (!name || !phone || !count) {
-        alert('모든 필드를 입력해 주세요.');
+        alert('모든 항목을 입력해 주세요.');
         return;
       }
 
       const totalDrinks = water + cola + pocari + beer;
       if (totalDrinks > count) {
-        alert('선택한 웰컴드링크 수량이 인원수보다 많습니다.');
+        alert('웰컴드링크 수량이 인원수보다 많습니다.');
         return;
       }
 
@@ -72,22 +133,21 @@
         }
       };
 
-      // 입력폼 숨기고 확인창 보여줌
       document.getElementById('inputArea').style.display = 'none';
       document.getElementById('confirmArea').style.display = 'block';
 
-      // 예매자 정보 표시
       document.getElementById('confirmInfo').innerHTML = `
+        <h3>예약자 정보 확인</h3>
         <p>이름: ${name}</p>
         <p>전화번호: ${phone}</p>
         <p>인원수: ${count}</p>
         <p>웰컴드링크: 물 ${water}개, 콜라 ${cola}개, 포카리 ${pocari}개, 맥주 ${beer}개</p>
-        <p>입금 계좌번호: 우리은행 123-456789-01-234 (예금주: 트리넛츠)</p>
+        <h4>입금 계좌</h4>
+        <p>우리은행 123-456789-01-234 (예금주: 트리넛츠)</p>
       `;
     }
 
     window.handleModifyClick = function() {
-      // 수정하기 눌렀을 때 입력폼 복귀
       document.getElementById('inputArea').style.display = 'block';
       document.getElementById('confirmArea').style.display = 'none';
     }
@@ -118,19 +178,17 @@
         return;
       }
 
-      // 화면 교체
       document.getElementById('confirmArea').style.display = 'none';
       document.getElementById('completeArea').style.display = 'block';
 
       document.getElementById('completeInfo').innerHTML = `
-        <p>예매가 완료되었습니다!</p>
+        <h3>예매 완료</h3>
         <p>예약자명: ${reservationInfo.name}</p>
         <p>전화번호: ${reservationInfo.phone}</p>
         <p>예약번호: ${booking_number}</p>
         <p>※ 예매확인 페이지에서 예약번호로 조회할 수 있습니다.</p>
       `;
 
-      // 남은좌석 다시 불러오기
       fetchCurrentReservations();
     }
 
@@ -146,12 +204,18 @@
 <body>
   <h1>티켓 예매</h1>
   <div id="seatInfo">남은 좌석: 불러오는 중...</div>
-  
-  <div id="inputArea">
-    <p><input type="text" id="name" placeholder="이름"></p>
-    <p><input type="text" id="phone" placeholder="전화번호"></p>
-    <p>
-      인원수:
+
+  <div class="container" id="inputArea">
+    <div class="form-group">
+      <label>이름</label>
+      <input type="text" id="name" placeholder="이름 입력">
+    </div>
+    <div class="form-group">
+      <label>전화번호</label>
+      <input type="text" id="phone" placeholder="전화번호 입력">
+    </div>
+    <div class="form-group">
+      <label>인원수</label>
       <select id="count">
         <option value="1">1명</option>
         <option value="2">2명</option>
@@ -159,47 +223,52 @@
         <option value="4">4명</option>
         <option value="5">5명</option>
       </select>
-    </p>
-    <h3>웰컴드링크 선택 (인원수 이내)</h3>
-    <p>물: 
+    </div>
+    <div class="form-group">
+      <label>물</label>
       <select id="water">
         <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
       </select>
-    </p>
-    <p>콜라: 
+    </div>
+    <div class="form-group">
+      <label>콜라</label>
       <select id="cola">
         <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
       </select>
-    </p>
-    <p>포카리: 
+    </div>
+    <div class="form-group">
+      <label>포카리</label>
       <select id="pocari">
         <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
       </select>
-    </p>
-    <p>맥주: 
+    </div>
+    <div class="form-group">
+      <label>맥주</label>
       <select id="beer">
         <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
       </select>
-    </p>
+    </div>
 
-    <p>
+    <div class="button-group">
       <button onclick="handleReserveClick()">예매하기</button>
       <button onclick="moveToConfirm()">예매확인</button>
       <button onclick="goBack()">뒤로가기</button>
-    </p>
+    </div>
   </div>
 
-  <div id="confirmArea" style="display: none;">
+  <div class="container" id="confirmArea" style="display: none;">
     <div id="confirmInfo"></div>
-    <p>
+    <div class="button-group">
       <button onclick="handleCompleteClick()">예매완료</button>
       <button onclick="handleModifyClick()">수정하기</button>
-    </p>
+    </div>
   </div>
 
-  <div id="completeArea" style="display: none;">
+  <div class="container" id="completeArea" style="display: none;">
     <div id="completeInfo"></div>
-    <p><button onclick="goBack()">뒤로가기</button></p>
+    <div class="button-group">
+      <button onclick="goBack()">뒤로가기</button>
+    </div>
   </div>
 
 </body>
