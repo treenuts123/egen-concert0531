@@ -96,7 +96,6 @@
         <p>인원수: ${data.count}</p>
         <p>웰컴드링크: ${JSON.stringify(data.welcome_drinks).replace(/["{}"]/g, '')}</p>
         <p>상태: ${data.status}</p>
-        <p>입금 계좌: 우리은행 123-456789-01-234 (예금주: 트리넛츠)</p>
       `;
     }
 
@@ -113,7 +112,7 @@
       // 예매 취소 요청
       const { data, error } = await supabase
         .from('reservations')
-        .update({ status: '취소' })
+        .update({ status: '환불대기중' })
         .eq('booking_number', bookingNumber)
         .eq('name', name);
 
@@ -146,7 +145,7 @@
         .update({
           refund_bank: refundBank,
           refund_account: refundAccount,
-          status: '환불완료'
+          status: '취소완료'
         })
         .eq('booking_number', bookingNumber)
         .eq('name', name);
@@ -243,5 +242,6 @@
     </div>
     <button onclick="saveRefundInfo()">환불 정보 저장</button>
   </div>
+
 </body>
 </html>
