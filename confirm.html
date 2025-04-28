@@ -62,6 +62,7 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ'
     const supabase = createClient(supabaseUrl, supabaseKey)
 
+    // 예매 정보 조회
     window.handleSearchClick = async function() {
       const bookingNumber = document.getElementById('bookingNumber').value.trim();
       const name = document.getElementById('name').value.trim();
@@ -99,6 +100,7 @@
       `;
     }
 
+    // 예매 취소 처리
     window.handleCancelClick = async function() {
       const bookingNumber = document.getElementById('bookingNumber').value.trim();
       const name = document.getElementById('name').value.trim();
@@ -120,8 +122,74 @@
         return;
       }
 
-      alert('예매가 취소되었습니다.');
-      window.location.reload();
+      // 환불 계좌 입력란 표시
+      document.getElementById('refundAccountArea').style.display = 'block';
+
+      alert('예매가 취소되었습니다. 환불 계좌를 입력해 주세요.');
+    }
+
+    // 환불 정보 저장
+    window.saveRefundInfo = async function() {
+      const refundBank = document.getElementById('refundBank').value.trim();
+      const refundAccount = document.getElementById('refundAccount').value.trim();
+      const bookingNumber = document.getElementById('bookingNumber').value.trim();
+      const name = document.getElementById('name').value.trim();
+
+      if (!refundBank || !refundAccount) {
+        alert('환불 은행과 계좌를 모두 입력해주세요.');
+        return;
+      }
+
+      // 환불 정보 업데이트
+      const { data, error } = await supabase
+        .from('reservations')
+        .update({
+          refund_bank: refundBank,
+          refund_account: refundAccount,
+          status: '환불완료'
+        })
+        .eq('booking_number', bookingNumber)
+        .eq('name', name);
+
+      if (error) {
+        alert('환불 정보 저장 중 오류가 발생했습니다.');
+        return;
+      }
+
+      alert('환불 정보가 저장되었습니다.');
+
+      // 이후 필요한 화면 처리
+      window.location.reload(); // 페이지 새로고침 또는 다른 화면으로 이동
+    }
+
+    // 예매번호 찾기
+    window.handleFindBookingNumberClick = function() {
+      document.getElementById('findBookingArea').style.display = 'block';
+    }
+
+    window.handleFindBookingSubmit = async function() {
+      const name = document.getElementById('findName').value.trim();
+      const phone = document.getElementById('findPhone').value.trim();
+
+      if (!name || !phone) {
+        alert('이름과 전화번호를 모두 입력해주세요.');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('reservations')
+        .select('booking_number')
+        .eq('name', name)
+        .eq('phone', phone)
+        .single();
+
+      if (error || !data) {
+        alert('예매 번호를 찾을 수 없습니다.');
+        return;
+      }
+
+      document.getElementById('bookingNumber').value = data.booking_number;
+      document.getElementById('findBookingArea').style.display = 'none';
     }
 
     window.goBack = function() {
@@ -141,7 +209,20 @@
       <input type="text" id="name" placeholder="이름 입력">
     </div>
     <button onclick="handleSearchClick()">조회하기</button>
+    <button onclick="handleFindBookingNumberClick()">예매번호 찾기</button>
     <button onclick="goBack()">뒤로가기</button>
+  </div>
+
+  <div class="container" id="findBookingArea" style="display: none;">
+    <div class="form-group">
+      <label>이름</label>
+      <input type="text" id="findName" placeholder="이름 입력">
+    </div>
+    <div class="form-group">
+      <label>전화번호</label>
+      <input type="text" id="findPhone" placeholder="전화번호 입력">
+    </div>
+    <button onclick="handleFindBookingSubmit()">예매번호 찾기</button>
   </div>
 
   <div class="container" id="resultArea" style="display: none;">
@@ -151,5 +232,16 @@
     </p>
   </div>
 
+  <div id="refundAccountArea" style="display: none;">
+    <div class="form-group">
+      <label>환불 은행</label>
+      <input type="text" id="refundBank" placeholder="환불 받을 은행">
+    </div>
+    <div class="form-group">
+      <label>환불 계좌</label>
+      <input type="text" id="refundAccount" placeholder="환불 받을 계좌">
+    </div>
+    <button onclick="saveRefundInfo()">환불 정보 저장</button>
+  </div>
 </body>
 </html>
