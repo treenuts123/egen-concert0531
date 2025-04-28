@@ -2,66 +2,154 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>22.3도 예매 확인</title>
+  <title>예매 확인</title>
   <style>
-    body { font-family: '맑은 고딕', sans-serif; background-color: #f4f4f9; text-align: center; padding: 20px; }
-    input, button { margin: 10px; padding: 10px; font-size: 1em; }
-    .result { margin-top: 20px; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 30px;
+      padding: 0;
+      background-color: #fafafa;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #resultArea {
+      text-align: center;
+    }
+    #resultInfo {
+      margin-bottom: 20px;
+    }
   </style>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabaseUrl = 'https://sdnbavlcgejmvdtmzbep.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ'
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    window.handleSearchClick = async function() {
+      const bookingNumber = document.getElementById('bookingNumber').value.trim();
+      const name = document.getElementById('name').value.trim();
+
+      if (!bookingNumber || !name) {
+        alert('예매번호와 이름을 모두 입력해주세요.');
+        return;
+      }
+
+      // Supabase에서 예약 정보 조회
+      const { data, error } = await supabase
+        .from('reservations')
+        .select('*')
+        .eq('booking_number', bookingNumber)
+        .eq('name', name)
+        .single();
+
+      if (error || !data) {
+        alert('예매 정보를 찾을 수 없습니다.');
+        return;
+      }
+
+      // 예매 정보 표시
+      document.getElementById('inputArea').style.display = 'none';
+      document.getElementById('resultArea').style.display = 'block';
+
+      document.getElementById('resultInfo').innerHTML = `
+        <h3>예매자 정보</h3>
+        <p>이름: ${data.name}</p>
+        <p>전화번호: ${data.phone}</p>
+        <p>인원수: ${data.count}</p>
+        <p>웰컴드링크: ${JSON.stringify(data.welcome_drinks).replace(/["{}"]/g, '')}</p>
+        <p>상태: ${data.status}</p>
+        <p>입금 계좌: 우리은행 123-456789-01-234 (예금주: 트리넛츠)</p>
+      `;
+    }
+
+    window.handleCancelClick = async function() {
+      const bookingNumber = document.getElementById('bookingNumber').value.trim();
+      const name = document.getElementById('name').value.trim();
+
+      if (!bookingNumber || !name) {
+        alert('예매번호와 이름을 모두 입력해주세요.');
+        return;
+      }
+
+      // 예매 취소 요청
+      const { data, error } = await supabase
+        .from('reservations')
+        .update({ status: '취소' })
+        .eq('booking_number', bookingNumber)
+        .eq('name', name);
+
+      if (error) {
+        alert('예매 취소 중 오류가 발생했습니다.');
+        return;
+      }
+
+      alert('예매가 취소되었습니다.');
+      window.location.reload();
+    }
+
+    window.goBack = function() {
+      window.location.href = 'index.html';
+    }
+  </script>
 </head>
 <body>
- <a href="index.html" class="home-btn">처음으로 돌아가기</a>
+  <h1>예매 확인</h1>
+  <div class="container" id="inputArea">
+    <div class="form-group">
+      <label>예매번호</label>
+      <input type="text" id="bookingNumber" placeholder="예매번호 입력">
+    </div>
+    <div class="form-group">
+      <label>이름</label>
+      <input type="text" id="name" placeholder="이름 입력">
+    </div>
+    <button onclick="handleSearchClick()">조회하기</button>
+    <button onclick="goBack()">뒤로가기</button>
+  </div>
 
-<h1>22.3도 예매 확인</h1>
-
-<input type="text" id="bookingNumber" placeholder="예매번호 입력">
-<button onclick="checkReservation()">확인</button>
-
-<div class="result" id="result"></div>
-
-<script>
-const sheetId = "1bH5EDVNvqzaATfuckYcLCNmgDa9aaw26fEN5d5diU6U";
-const apiKey = "AIzaSyBLa0VxeCOcOiJYKnte5LXi-ZN7p-rn_KE";
-const sheetName = "Sheet1";
-
-function checkReservation() {
-  const bookingNumber = document.getElementById('bookingNumber').value.trim();
-  if (!bookingNumber) {
-    alert('예매번호를 입력하세요.');
-    return;
-  }
-
-  fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`)
-    .then(response => response.json())
-    .then(data => {
-      const rows = data.values.slice(1); // 첫줄은 헤더니까 빼기
-      const found = rows.find(row => row[0] === bookingNumber);
-
-      const resultDiv = document.getElementById('result');
-      if (found) {
-        resultDiv.innerHTML = `
-          <h3>예매자: ${found[1]}</h3>
-          <p>전화번호: ${found[2]}</p>
-          <p>인원수: ${found[3]}명</p>
-          <p>웰컴드링크: ${found[4]}</p>
-          <p>입금상태: <strong>${found[5]}</strong></p>
-          ${found[5] === '취소요청' ? `
-          <p style="color:red;">취소 요청 중입니다.</p>
-          <p>환불은행: ${found[6]}</p>
-          <p>환불계좌번호: ${found[7]}</p>
-          ` : ''}
-        `;
-      } else {
-        resultDiv.innerHTML = '<p style="color:red">예매번호를 찾을 수 없습니다.</p>';
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('오류가 발생했습니다.');
-    });
-}
-</script>
+  <div class="container" id="resultArea" style="display: none;">
+    <div id="resultInfo"></div>
+    <p>
+      <button onclick="handleCancelClick()">예매 취소</button>
+    </p>
+  </div>
 
 </body>
 </html>
