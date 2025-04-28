@@ -173,10 +173,10 @@
         ]);
 
       if (error) {
-        console.error('예매 저장 실패', error)
-        alert('예매 저장 중 오류가 발생했습니다.');
-        return;
-      }
+  console.error('예매 저장 실패', error)
+  alert('예매 저장 중 오류가 발생했습니다: ' + error.message);
+  return;
+}
 
       document.getElementById('confirmArea').style.display = 'none';
       document.getElementById('completeArea').style.display = 'block';
