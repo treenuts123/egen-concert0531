@@ -175,3 +175,107 @@
         alert('예매 저장 중 오류가 발생했습니다: ' + error.message);
         return;
       }
+
+      reservationInfo.booking_number = booking_number; // ✅ 추가된 한 줄
+
+      document.getElementById('confirmArea').style.display = 'none';
+      document.getElementById('completeArea').style.display = 'block';
+
+      document.getElementById('completeInfo').innerHTML = `
+        <h3>예매 완료</h3>
+        <p>예약자명: ${reservationInfo.name}</p>
+        <p>전화번호: ${reservationInfo.phone}</p>
+        <p>예약번호: ${booking_number}</p>
+        <p>※ 예매확인 페이지에서 예약번호로 조회할 수 있습니다.</p>
+      `;
+
+      fetchCurrentReservations();
+    }
+
+    window.moveToConfirm = function() {
+      window.location.href = 'confirm.html';
+    }
+
+    window.goToConfirmPage = function() { // ✅ 추가된 함수
+      const name = reservationInfo.name;
+      const bookingNumber = reservationInfo.booking_number;
+      window.location.href = `confirm.html?name=${encodeURIComponent(name)}&booking_number=${bookingNumber}`;
+    }
+
+    window.goBack = function() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</head>
+<body>
+  <h1>티켓 예매</h1>
+  <div id="seatInfo">남은 좌석: 불러오는 중...</div>
+
+  <div class="container" id="inputArea">
+    <div class="form-group">
+      <label>이름</label>
+      <input type="text" id="name" placeholder="이름 입력">
+    </div>
+    <div class="form-group">
+      <label>전화번호</label>
+      <input type="text" id="phone" placeholder="전화번호 입력">
+    </div>
+    <div class="form-group">
+      <label>인원수</label>
+      <select id="count">
+        <option value="1">1명</option>
+        <option value="2">2명</option>
+        <option value="3">3명</option>
+        <option value="4">4명</option>
+        <option value="5">5명</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>물</label>
+      <select id="water">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>콜라</label>
+      <select id="cola">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>포카리</label>
+      <select id="pocari">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>맥주</label>
+      <select id="beer">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </div>
+
+    <div class="button-group">
+      <button onclick="handleReserveClick()">예매하기</button>
+      <button onclick="moveToConfirm()">예매확인</button>
+      <button onclick="goBack()">뒤로가기</button>
+    </div>
+  </div>
+
+  <div class="container" id="confirmArea" style="display: none;">
+    <div id="confirmInfo"></div>
+    <div class="button-group">
+      <button onclick="handleCompleteClick()">예매완료</button>
+      <button onclick="handleModifyClick()">수정하기</button>
+    </div>
+  </div>
+
+  <div class="container" id="completeArea" style="display: none;">
+    <div id="completeInfo"></div>
+    <div class="button-group">
+      <button onclick="goToConfirmPage()">예매확인 바로가기</button>
+      <button onclick="goBack()">뒤로가기</button>
+    </div>
+  </div>
+</body>
+</html>
