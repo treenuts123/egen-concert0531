@@ -66,16 +66,12 @@
       text-align: center;
     }
   </style>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  <!-- ✅ Supabase 모듈 import -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  
-  <!-- ✅ 메인 스크립트 -->
-  <script>
-    const supabase = supabase.createClient(
-      'https://sdnbavlcgejmvdtmzbep.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ'
-    );
+    const supabaseUrl = 'https://sdnbavlcgejmvdtmzbep.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ'
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
     let maxSeats = 50;
     let currentSeats = 0;
@@ -83,10 +79,10 @@
     async function fetchCurrentReservations() {
       const { data, error } = await supabase
         .from('reservations')
-        .select('count, status');
+        .select('count, status')
 
       if (error) {
-        console.error('잔여좌석 불러오기 실패', error);
+        console.error('잔여좌석 불러오기 실패', error)
         return;
       }
 
@@ -163,7 +159,7 @@
     window.handleCompleteClick = async function() {
       const booking_number = generateBookingNumber();
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('reservations')
         .insert([{
           name: reservationInfo.name,
@@ -175,7 +171,7 @@
         }]);
 
       if (error) {
-        console.error('예매 저장 실패', error);
+        console.error('예매 저장 실패', error)
         alert('예매 저장 중 오류가 발생했습니다: ' + error.message);
         return;
       }
@@ -192,8 +188,6 @@
         <p>예약번호: ${booking_number}</p>
         <p>※ 예매확인 페이지에서 예약번호로 조회할 수 있습니다.</p>
       `;
-
-      fetchCurrentReservations();
     }
 
     window.moveToConfirm = function() {
@@ -216,15 +210,49 @@
   <div id="seatInfo">남은 좌석: 불러오는 중...</div>
 
   <div class="container" id="inputArea">
-    <div class="form-group"><label>이름</label><input type="text" id="name"></div>
-    <div class="form-group"><label>전화번호</label><input type="text" id="phone"></div>
-    <div class="form-group"><label>인원수</label>
-      <select id="count"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    <div class="form-group">
+      <label>이름</label>
+      <input type="text" id="name" placeholder="이름 입력">
     </div>
-    <div class="form-group"><label>물</label><select id="water"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
-    <div class="form-group"><label>콜라</label><select id="cola"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
-    <div class="form-group"><label>포카리</label><select id="pocari"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
-    <div class="form-group"><label>맥주</label><select id="beer"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+    <div class="form-group">
+      <label>전화번호</label>
+      <input type="text" id="phone" placeholder="전화번호 입력">
+    </div>
+    <div class="form-group">
+      <label>인원수</label>
+      <select id="count">
+        <option value="1">1명</option>
+        <option value="2">2명</option>
+        <option value="3">3명</option>
+        <option value="4">4명</option>
+        <option value="5">5명</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>물</label>
+      <select id="water">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>콜라</label>
+      <select id="cola">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>포카리</label>
+      <select id="pocari">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>맥주</label>
+      <select id="beer">
+        <option value="0">0개</option><option value="1">1개</option><option value="2">2개</option><option value="3">3개</option><option value="4">4개</option><option value="5">5개</option>
+      </select>
+    </div>
+
     <div class="button-group">
       <button onclick="handleReserveClick()">예매하기</button>
       <button onclick="moveToConfirm()">예매확인</button>
