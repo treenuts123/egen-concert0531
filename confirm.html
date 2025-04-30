@@ -48,11 +48,21 @@
     button:hover {
       background-color: #45a049;
     }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
     #resultArea {
       text-align: center;
     }
     #resultInfo {
       margin-bottom: 20px;
+    }
+    #footer {
+      margin-top: 50px;
+      text-align: center;
+      font-size: 14px;
+      color: #777;
     }
   </style>
   <script type="module">
@@ -94,6 +104,9 @@
         <p>웰컴드링크: ${JSON.stringify(data.welcome_drinks).replace(/["{}"]/g, '')}</p>
         <p>상태: ${data.status}</p>
       `;
+
+      const cancelBtn = document.getElementById('cancelBtn');
+      cancelBtn.disabled = (data.status === '환불완료' || data.status === '환불대기중');
     }
 
     window.handleCancelClick = async function() {
@@ -209,13 +222,13 @@
       <input type="text" id="findPhone" placeholder="전화번호 입력">
     </div>
     <button onclick="handleFindBookingSubmit()">예매번호 찾기</button>
+    <button onclick="goBack()">뒤로가기</button>
   </div>
 
   <div class="container" id="resultArea" style="display: none;">
     <div id="resultInfo"></div>
-    <p>
-      <button onclick="handleCancelClick()">예매 취소</button>
-    </p>
+    <p><button id="cancelBtn" onclick="handleCancelClick()">예매 취소</button></p>
+    <button onclick="goBack()">뒤로가기</button>
   </div>
 
   <div id="refundAccountArea" class="container" style="display: none;">
@@ -228,6 +241,11 @@
       <input type="text" id="refundAccount" placeholder="환불 받을 계좌">
     </div>
     <button onclick="saveRefundInfo()">환불 정보 저장</button>
+    <button onclick="goBack()">뒤로가기</button>
+  </div>
+
+  <div id="footer">
+    문의 : <a href="mailto:treenuts.official@gmail.com">treenuts.official@gmail.com</a>
   </div>
 </body>
 </html>
