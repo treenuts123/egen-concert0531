@@ -62,7 +62,6 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkbmJhdmxjZ2VqbXZkdG16YmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNzM3OTEsImV4cCI6MjA2MDk0OTc5MX0.fmLedtsLoY140wrbyFmITQiu0BZQUfQxs-qIX7LmibQ'
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // 예매 정보 조회
     window.handleSearchClick = async function() {
       const bookingNumber = document.getElementById('bookingNumber').value.trim();
       const name = document.getElementById('name').value.trim();
@@ -72,7 +71,6 @@
         return;
       }
 
-      // Supabase에서 예약 정보 조회
       const { data, error } = await supabase
         .from('reservations')
         .select('*')
@@ -85,7 +83,6 @@
         return;
       }
 
-      // 예매 정보 표시
       document.getElementById('inputArea').style.display = 'none';
       document.getElementById('resultArea').style.display = 'block';
 
@@ -99,7 +96,6 @@
       `;
     }
 
-    // 예매 취소 처리
     window.handleCancelClick = async function() {
       const bookingNumber = document.getElementById('bookingNumber').value.trim();
       const name = document.getElementById('name').value.trim();
@@ -109,8 +105,7 @@
         return;
       }
 
-      // 예매 취소 요청
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('reservations')
         .update({ status: '환불대기중' })
         .eq('booking_number', bookingNumber)
@@ -121,13 +116,10 @@
         return;
       }
 
-      // 환불 계좌 입력란 표시
       document.getElementById('refundAccountArea').style.display = 'block';
-
       alert('예매가 취소되었습니다. 환불 계좌를 입력해 주세요.');
     }
 
-    // 환불 정보 저장
     window.saveRefundInfo = async function() {
       const refundBank = document.getElementById('refundBank').value.trim();
       const refundAccount = document.getElementById('refundAccount').value.trim();
@@ -139,13 +131,11 @@
         return;
       }
 
-      // 환불 정보 업데이트
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('reservations')
         .update({
           refund_bank: refundBank,
-          refund_account: refundAccount,
-          status: '취소완료'
+          refund_account: refundAccount
         })
         .eq('booking_number', bookingNumber)
         .eq('name', name);
@@ -156,12 +146,9 @@
       }
 
       alert('환불 정보가 저장되었습니다.');
-
-      // 이후 필요한 화면 처리
-      window.location.reload(); // 페이지 새로고침 또는 다른 화면으로 이동
+      window.location.reload();
     }
 
-    // 예매번호 찾기
     window.handleFindBookingNumberClick = function() {
       document.getElementById('findBookingArea').style.display = 'block';
     }
@@ -231,7 +218,7 @@
     </p>
   </div>
 
-  <div id="refundAccountArea" style="display: none;">
+  <div id="refundAccountArea" class="container" style="display: none;">
     <div class="form-group">
       <label>환불 은행</label>
       <input type="text" id="refundBank" placeholder="환불 받을 은행">
@@ -242,6 +229,5 @@
     </div>
     <button onclick="saveRefundInfo()">환불 정보 저장</button>
   </div>
-
 </body>
 </html>
