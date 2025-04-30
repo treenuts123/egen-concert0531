@@ -64,14 +64,13 @@
       font-size: 14px;
       color: #777;
     }
-   
-  #notice {
+    #notice {
     margin-top: 20px;
     font-size: 14px;
     color: #777;
     text-align: center;
     line-height: 1.6;
-  }
+   }
   </style>
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -251,7 +250,10 @@
     <button onclick="saveRefundInfo()">환불 정보 저장</button>
     <button onclick="goBack()">뒤로가기</button>
   </div>
-<div id="notice">
+  <div id="footer">
+    문의 : <a href="mailto:treenuts.official@gmail.com">treenuts.official@gmail.com</a>
+  </div>
+ <div id="notice">
   ※ 예매번호 분실 시, 이름과 전화번호로 예매번호를 찾을 수 있습니다.<br>
   ※ 예매 상태는 다음과 같이 표시됩니다.<br>
   &nbsp;&nbsp;- 입금대기: 예매는 완료되었으나 아직 입금 확인 전입니다.<br>
@@ -261,9 +263,7 @@
   ※ 예매 및 예매 취소는 5월 28일 00시 00분까지만 가능합니다.<br>
   ※ 예매 취소 후에는 재예매가 불가능합니다.<br>
   ※ 입장 시 예매번호와 신분증을 확인합니다.
-</div>
-  <div id="footer">
-    문의 : <a href="mailto:treenuts.official@gmail.com">treenuts.official@gmail.com</a>
-  </div>
+ </div>
+  
 </body>
 </html>
