@@ -176,7 +176,7 @@
         return;
       }
 
-      reservationInfo.booking_number = booking_number; // ✅ 추가된 한 줄
+      reservationInfo.booking_number = booking_number; // 
 
       document.getElementById('confirmArea').style.display = 'none';
       document.getElementById('completeArea').style.display = 'block';
@@ -196,7 +196,7 @@
       window.location.href = 'confirm.html';
     }
 
-    window.goToConfirmPage = function() { // ✅ 추가된 함수
+    window.goToConfirmPage = function() { // 
       const name = reservationInfo.name;
       const bookingNumber = reservationInfo.booking_number;
       window.location.href = `confirm.html?name=${encodeURIComponent(name)}&booking_number=${bookingNumber}`;
