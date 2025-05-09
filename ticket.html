@@ -131,7 +131,7 @@
         alert('웰컴드링크 수량이 인원수보다 많습니다.');
         return;
       }
-
+      const totalPrice = count * 12000;
       reservationInfo = {
         name,
         phone,
@@ -152,6 +152,7 @@
         <p>이름: ${name}</p>
         <p>전화번호: ${phone}</p>
         <p>인원수: ${count}</p>
+        <p>총 금액: ${totalPrice.toLocaleString()}원</p>
         <p>웰컴드링크: 물 ${water}개, 콜라 ${cola}개, 포카리 ${pocari}개, 맥주 ${beer}개</p>
         <h4>입금 계좌</h4>
         <p>카카오뱅크 7979-86-23514 (예금주: 정동구)</p>
