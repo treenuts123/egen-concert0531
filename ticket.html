@@ -97,7 +97,7 @@
         return;
       }
 
-      const validReservations = data.filter(r => r.status === '입금대기' || r.status === '입금완료');
+      const validReservations = data.filter(r => r.status === '입금대기' || r.status === '예매완료');
       currentSeats = validReservations.reduce((sum, r) => sum + (r.count || 0), 0);
       updateSeatDisplay();
     }
