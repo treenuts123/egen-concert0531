@@ -70,15 +70,10 @@
     </div>
 
     <script>
-      function handleReservationRedirect() {
-        const today = new Date();
-        const cutoff = new Date('2025-05-08T00:00:00');
-        if (today < cutoff) {
-          window.location.href = 'timer.html';
-        } else {
-          window.location.href = 'ticket.html';
-        }
-      }
+  function handleReservationRedirect() {
+    alert('예매가 종료되었습니다');
+    }
     </script>
+
 </body>
 </html>
